@@ -16,7 +16,7 @@ on:
       namespace:
         description: Registry Namespace
         required: true
-        default: ${{ github.actor }}/slackernews
+        default: '${{ github.actor }}/slackernews'
         type: string
       slug:
         description: Replicated App Slug
