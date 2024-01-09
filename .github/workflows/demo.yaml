@@ -137,7 +137,7 @@ jobs:
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: '${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - name: Update the HelmChart kind
