@@ -144,7 +144,7 @@ jobs:
         uses: replicatedhq/action-kots-release@configurable-endpoint
         with:
           replicated-app: "slackernews"
-          replicated-api-token: ${{ secrets.REPLICATED_APP_TOKEN }}
+          replicated-api-token: ${{ secrets.REPLICATED_API_TOKEN }}
           replicated-api-origin: https://api.replicated.com/vendor
           yaml-dir: ./kots
           promote-channel: "Unstable"
