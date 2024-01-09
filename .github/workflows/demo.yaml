@@ -21,6 +21,10 @@ on:
         description: Replicated App Slug
         required: true
         type: string
+      version:
+        description: Release Version
+        required: true
+        type: string
       proxy:
         description: Proxy Image Registry
         required: true
@@ -59,7 +63,7 @@ jobs:
           tags: |
                 type=sha,format=long
                 type=schedule
-                type=semver,pattern={{version}}
+                type=raw,${{ inputs.version }}
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
@@ -94,9 +98,6 @@ jobs:
 
       - run: make chart
 
-      - id: get_version
-        uses: battila7/get-version-action@v2
-
       - uses: azure/setup-helm@v1
         with:
           version: "3.9.0"
@@ -114,7 +115,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ inputs.namespace }}/slackernews-web:${{ steps.get_version.outputs.version-without-v }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - id: package-helm-chart
@@ -123,20 +124,20 @@ jobs:
           helm dep up --debug && \
           cd .. && \
           helm package \
-            --app-version=${{ steps.get_version.outputs.version-without-v }} \
-            --version=${{ steps.get_version.outputs.version-without-v }} \
+            --app-version=${{ inputs.version }} \
+            --version=${{ inputs.version }} \
             ./slackernews
 
 
       - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ steps.get_version.outputs.version-without-v }}.tgz ./kots
+        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
 
       - name: Update the HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
-          replace: '${{ steps.get_version.outputs.version-without-v }}'
+          replace: '${{ inputs.version }}'
           regex: false
 
       - name: Create the unstable release
@@ -147,4 +148,4 @@ jobs:
           replicated-api-origin: https://api.replicated.com/vendor
           yaml-dir: ./kots
           promote-channel: "Unstable"
-          version: ${{ steps.get_version.outputs.version-without-v }}
+          version: ${{ inputs.version }}
