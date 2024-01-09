@@ -132,6 +132,14 @@ jobs:
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
 
+      - name: Update the slackernews-chart.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'kots/slackernews-chart.yaml'
+          find: '$IMAGE'
+          replace: 'proxy/${{ inputs.slug }}/${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          regex: false
+
       - name: Update the HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
