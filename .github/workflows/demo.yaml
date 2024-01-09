@@ -115,7 +115,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - id: package-helm-chart
