@@ -8,11 +8,6 @@ on:
         required: true
         default: main
         type: string
-      registry:
-        description: Private Image Registry
-        required: true
-        default: ghcr.io
-        type: string
       namespace:
         description: Registry Namespace
         required: true
@@ -30,6 +25,9 @@ on:
         required: true
         default: proxy.replicated.com
         type: string
+
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   build:
@@ -52,7 +50,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ inputs.registry }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -67,7 +65,7 @@ jobs:
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
-          images: ${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web
+          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web
 
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
@@ -115,7 +113,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - id: package-helm-chart
@@ -137,7 +135,7 @@ jobs:
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$IMAGE'
-          replace: '${{ inputs.registry }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: '${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - name: Update the HelmChart kind
