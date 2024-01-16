@@ -94,6 +94,8 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    outputs:
+      signature: ${{ steps.sign-web.outputs.signature }}
     steps:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
@@ -106,7 +108,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sign the web image
-        run: cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
+        id: sign-web
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
+          echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }})" >> $GITHUB_OUTPUT
 
   release:
     runs-on: ubuntu-22.04
@@ -155,7 +160,7 @@ jobs:
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
 
-      - name: Update the slackernews-chart.yaml with the image path
+      - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
@@ -163,13 +168,18 @@ jobs:
           replace: '${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
-      - name: Update the HelmChart kind
+      - name: Update chart version in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ inputs.version }}'
           regex: false
+
+      - name: Add image signature to airgap bundle
+        uses: mikefarah/yq@v4.40.5
+        with:
+          cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.signature }}" ]' kots/replicated-app.yaml
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
