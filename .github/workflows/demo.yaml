@@ -108,7 +108,7 @@ jobs:
           COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
-            --sign-container-identity ${{ inputs.proxy }}/proxy/${{ inputs.slug }}/${{ ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
+            --sign-container-identity ${{ inputs.proxy }}/proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
             --yes
 
   release:
