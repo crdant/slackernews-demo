@@ -105,18 +105,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sign the private web image
-        env:
-          COSIGN_EXPERIMENTAL: "true"
+      - name: Sign the web image
         run: cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
-
-      - name: Sign the proxy web image
-        env:
-          COSIGN_EXPERIMENTAL: "true"
-        run: |
-          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
-            --sign-container-identity ${{ inputs.proxy }}/proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
-            --yes
 
   release:
     runs-on: ubuntu-22.04
@@ -131,7 +121,7 @@ jobs:
 
       - run: make chart
 
-      - uses: azure/setup-helm@v1
+      - uses: azure/setup-helm@v3
         with:
           version: "3.9.0"
         id: install
