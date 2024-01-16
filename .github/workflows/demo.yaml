@@ -38,15 +38,13 @@ jobs:
       id-token: write
     outputs:
       tags: ${{ steps.web-meta.outputs.tags }}
+      digest: ${{ steps.build-push.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
           repository: slackernews/slackernews.git
           ref: ${{ inputs.branch }}
           token: ${{ secrets.GITHUB_TOKEN }} 
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.3.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -88,15 +86,35 @@ jobs:
           cache-from: ${{ steps.cache.outputs.cache-from }}
           cache-to: ${{ steps.cache.outputs.cache-to }}
 
-      - name: Sign the web image
+  sign:
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
+      - name: Sign the private web image
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ steps.build-push.outputs.digest }} --yes
+        run: cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
+
+      - name: Sign the proxy web image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
+            --sign-container-identity ${{ inputs.proxy }}/proxy/${{ inputs.slug }}/${{ ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} \
+            --yes
 
   release:
     runs-on: ubuntu-22.04
     needs:
-      - build
+      - sign
     steps:
       - uses: actions/checkout@v4
         with:
