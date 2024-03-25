@@ -173,7 +173,7 @@ jobs:
           apiVersion: embeddedcluster.replicated.com/v1beta1
           kind: Config
           spec:
-            version: ${{ step.embedded-cluster-release.release }}
+            version: ${{ steps.embedded-cluster-release.release }}
             unsupportedOverrides:
               k0s: |
                 config:
