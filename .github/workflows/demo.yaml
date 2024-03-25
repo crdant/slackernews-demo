@@ -124,7 +124,7 @@ jobs:
           ref: ${{ inputs.branch }}
           token: ${{ github.token }} 
 
-      - id: embedded-cluster-release
+      - id: embedded-cluster-version
         uses: pozetroninc/github-action-get-latest-release@master
         with:
           owner: replicatedhq
@@ -173,7 +173,7 @@ jobs:
           apiVersion: embeddedcluster.replicated.com/v1beta1
           kind: Config
           spec:
-            version: ${{ steps.embedded-cluster-release.release }}
+            version: ${VERSION}
             unsupportedOverrides:
               k0s: |
                 config:
@@ -188,7 +188,7 @@ jobs:
               helm:
                 repositories:
                 - name: ingress-nginx
-                  url: https://kubernetes.github.io/ingress-nginx
+                url: https://kubernetes.github.io/ingress-nginx
                 charts:
                 - name: ingress-nginx
                   chartname: ingress-nginx/ingress-nginx
@@ -201,6 +201,8 @@ jobs:
                           http: "80"
                           https: "443"
           MANIFEST
+        env:
+          VERSION: ${{ steps.embedded-cluster-version.outputs.version }}
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
