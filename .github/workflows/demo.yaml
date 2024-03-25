@@ -208,8 +208,8 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'kots/slackernews-chart.yaml'
-          find: '$IMAGE'
-          replace: '${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          find: '$REGISTRY'
+          replace: '${{ inputs.proxy }}'
           regex: false
 
       - name: Update chart version in HelmChart kind
@@ -218,6 +218,14 @@ jobs:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ inputs.version }}'
+          regex: false
+
+      - name: Update chart version in HelmChart kind
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'kots/slackernews-chart.yaml'
+          find: '$NAMESPACE'
+          replace: '${{ inputs.namespace }}'
           regex: false
 
       - name: Add image signature to airgap bundle
