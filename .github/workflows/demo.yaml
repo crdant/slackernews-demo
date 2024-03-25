@@ -188,7 +188,7 @@ jobs:
               helm:
                 repositories:
                 - name: ingress-nginx
-                url: https://kubernetes.github.io/ingress-nginx
+                  url: https://kubernetes.github.io/ingress-nginx
                 charts:
                 - name: ingress-nginx
                   chartname: ingress-nginx/ingress-nginx
