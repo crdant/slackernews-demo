@@ -173,7 +173,7 @@ jobs:
           apiVersion: embeddedcluster.replicated.com/v1beta1
           kind: Config
           spec:
-            version: ${VERSION}
+            version: ${RELEASE}
             unsupportedOverrides:
               k0s: |
                 config:
@@ -202,7 +202,7 @@ jobs:
                           https: "443"
           MANIFEST
         env:
-          VERSION: ${{ steps.embedded-cluster-version.outputs.version }}
+          RELEASE: ${{ steps.embedded-cluster-version.outputs.release }}
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
