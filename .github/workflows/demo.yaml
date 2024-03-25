@@ -169,7 +169,7 @@ jobs:
 
       - name: Adds embedded cluster config
         run: |
-          cat <<EMBEDDED_CLUSTER_MANIFEST > ./kots/embedded-cluster.yaml
+          cat <<MANIFEST > ./kots/embedded-cluster.yaml
           apiVersion: embeddedcluster.replicated.com/v1beta1
           kind: Config
           spec:
@@ -200,7 +200,7 @@ jobs:
                         nodePorts:
                           http: "80"
                           https: "443"
-          EMBEDDDED_CLUSTER_MANIFEST
+          MANIFEST
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
