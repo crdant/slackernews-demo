@@ -219,15 +219,6 @@ jobs:
                     network:
                       calico:
                         wireguard: true
-            extensions:
-              helm:
-                charts:
-                - name: prometheus
-                  chartname: oci://registry-1.docker.io/bitnamicharts/prometheus
-                  namespace: monitoring
-                - name: grafana
-                  chartname: oci://registry-1.docker.io/bitnamicharts/grafana
-                  namespace: monitoring
           MANIFEST
         env:
           RELEASE: ${{ steps.embedded-cluster-version.outputs.release }}
