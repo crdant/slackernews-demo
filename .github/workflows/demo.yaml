@@ -121,7 +121,8 @@ jobs:
       packages: write
       id-token: write
     outputs:
-      signature: ${{ steps.sign-web.outputs.signature }}
+      web-signature: ${{ steps.sign-web.outputs.signature }}
+      nginx-signature: ${{ steps.sign-nginx.outputs.signature }}
     steps:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
@@ -138,6 +139,12 @@ jobs:
         run: |
           cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }})" >> $GITHUB_OUTPUT
+
+      - name: Sign the NGINX image
+        id: sign-nginx
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx@${{ needs.build.outputs.digest }} --yes
+          echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx@${{ needs.build.outputs.digest }})" >> $GITHUB_OUTPUT
 
   release:
     runs-on: ubuntu-22.04
@@ -259,10 +266,15 @@ jobs:
         with:
           cmd: yq -i '.spec.builder.images.nginx.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-nginx:${{ inputs.version }}"' kots/slackernews-chart.yaml
 
-      - name: Add image signature to airgap bundle
+      - name: Add web image signature to airgap bundle
         uses: mikefarah/yq@v4.40.5
         with:
-          cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.signature }}" ]' kots/replicated-app.yaml
+          cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.web-signature }}" ]' kots/replicated-app.yaml
+
+      - name: Add nginx image signature to airgap bundle
+        uses: mikefarah/yq@v4.40.5
+        with:
+          cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.nginx-signature }}" ]' kots/replicated-app.yaml
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
