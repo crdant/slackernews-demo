@@ -69,6 +69,19 @@ jobs:
                 type=ref,event=pr
           images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web
 
+      - name: Extract metadata (tags, labels) for web image
+        id: nginx-meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+                type=sha,format=long
+                type=schedule
+                type=raw,${{ inputs.version }}
+                type=ref,event=branch
+                type=ref,event=tag
+                type=ref,event=pr
+          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx
+
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
         with:
@@ -85,6 +98,19 @@ jobs:
           push: true
           cache-from: ${{ steps.cache.outputs.cache-from }}
           cache-to: ${{ steps.cache.outputs.cache-to }}
+
+      - name: Build nginx image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx
+          tags: ${{ steps.web-meta.outputs.tags }}
+          labels: ${{ steps.web-meta.outputs.labels }}
+          file: ./deploy/Dockerfile.nginx
+          push: true
+          cache-from: ${{ steps.cache.outputs.cache-from }}
+          cache-to: ${{ steps.cache.outputs.cache-to }}
+
 
   sign:
     runs-on: ubuntu-22.04
@@ -145,12 +171,21 @@ jobs:
           find: '$REGISTRY'
           replace: '${{ inputs.proxy }}'
           regex: false
+
       - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
           replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          regex: false
+
+      - name: Update the values.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$NGINX_IMAGE'
+          replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx:${{ inputs.version }}'
           regex: false
 
       - id: package-helm-chart
