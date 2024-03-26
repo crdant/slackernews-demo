@@ -251,13 +251,13 @@ jobs:
         id: airgap-web-image
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.builder.images.slackernews.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}"' 'kots/slackernews-chart.yml'
+          cmd: yq -i '.builder.images.slackernews.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}"' kots/slackernews-chart.yaml
 
       - name: Provide nginx image to the airgap builder
         id: airgap-nginx-image
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.builder.images.nginx.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-nginx:${{ inputs.version }}"' 'kots/slackernews-chart.yml'
+          cmd: yq -i '.builder.images.nginx.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-nginx:${{ inputs.version }}"' kots/slackernews-chart.yaml
 
       - name: Add image signature to airgap bundle
         uses: mikefarah/yq@v4.40.5
