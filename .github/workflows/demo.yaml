@@ -221,20 +221,13 @@ jobs:
                         wireguard: true
             extensions:
               helm:
-                repositories:
-                - name: ingress-nginx
-                  url: https://kubernetes.github.io/ingress-nginx
                 charts:
-                - name: ingress-nginx
-                  chartname: ingress-nginx/ingress-nginx
-                  namespace: ingress-nginx
-                  values: |
-                    controller:
-                      service:
-                        type: NodePort
-                        nodePorts:
-                          http: "80"
-                          https: "443"
+                - name: prometheus
+                  chartname: oci://registry-1.docker.io/bitnamicharts/prometheus
+                  namespace: monitoring
+                - name: grafana
+                  chartname: oci://registry-1.docker.io/bitnamicharts/grafana
+                  namespace: monitoring
           MANIFEST
         env:
           RELEASE: ${{ steps.embedded-cluster-version.outputs.release }}
