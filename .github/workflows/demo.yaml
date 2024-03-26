@@ -247,6 +247,18 @@ jobs:
           replace: '${{ inputs.namespace }}'
           regex: false
 
+      - name: Provide web image to the airgap builder
+        id: airgap-web-image
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.builder.images.slackernews.repository = "ghcr.io/${{ inputs.namesace }}/slackernews-web:${{ inputs.version }}"' 'kots/slackernews-chart.yml'
+
+      - name: Provide nginx image to the airgap builder
+        id: airgap-web-image
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.builder.images.nginx.repository = "ghcr.io/${{ inputs.namesace }}/slackernews-nginx:${{ inputs.version }}"' 'kots/slackernews-chart.yml'
+
       - name: Add image signature to airgap bundle
         uses: mikefarah/yq@v4.40.5
         with:
