@@ -103,9 +103,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx
           tags: ${{ steps.nginx-meta.outputs.tags }}
-          labels: ${{ steps.nginxweb-meta.outputs.labels }}
+          labels: ${{ steps.nginx-meta.outputs.labels }}
           file: ./deploy/Dockerfile.nginx
           push: true
           cache-from: ${{ steps.cache.outputs.cache-from }}
