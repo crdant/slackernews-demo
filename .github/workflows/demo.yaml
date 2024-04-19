@@ -139,13 +139,13 @@ jobs:
       - name: Sign the web image
         id: sign-web
         run: |
-          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.digest }} --yes
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
 
       - name: Sign the NGINX image
         id: sign-nginx
         run: |
-          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx@${{ needs.build.outputs.digest }} --yes
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx@${{ needs.build.outputs.nginx-digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-nginx@${{ needs.build.outputs.nginx-digest }})" >> $GITHUB_OUTPUT
 
   release:
