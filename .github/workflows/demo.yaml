@@ -198,6 +198,7 @@ jobs:
           helm package \
             --app-version=${{ inputs.version }} \
             --version=${{ inputs.version }} \
+            --destination=../kots \
             ./slackernews
 
       - name: Set web image in HelmChart kind
