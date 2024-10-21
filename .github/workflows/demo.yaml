@@ -159,13 +159,6 @@ jobs:
           ref: ${{ inputs.branch }}
           token: ${{ github.token }} 
 
-      - id: embedded-cluster-version
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          owner: replicatedhq
-          repo: embedded-cluster
-          excludes: prerelease, draft
-
       - run: make chart
 
       - uses: azure/setup-helm@v3
@@ -210,27 +203,6 @@ jobs:
 
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
-
-      - name: Adds embedded cluster config
-        run: |
-          cat <<MANIFEST > ./kots/embedded-cluster.yaml
-          apiVersion: embeddedcluster.replicated.com/v1beta1
-          kind: Config
-          spec:
-            version: ${RELEASE}
-            unsupportedOverrides:
-              k0s: |
-                config:
-                  spec:
-                    api:
-                      extraArgs:
-                        service-node-port-range: 80-32767
-                    network:
-                      calico:
-                        wireguard: true
-          MANIFEST
-        env:
-          RELEASE: ${{ steps.embedded-cluster-version.outputs.release }}
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
