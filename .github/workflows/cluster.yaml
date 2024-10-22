@@ -101,7 +101,7 @@ jobs:
           tags: |
                 type=sha,format=long
                 type=schedule
-                type=raw,${{ inputs.version }}
+                type=raw,${{ inputs.version }}-build.${{ github.run_number }}
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
@@ -166,14 +166,15 @@ jobs:
           ref: ${{ inputs.branch }}
           token: ${{ github.token }} 
 
-      - id: embedded-cluster-version
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          owner: replicatedhq
-          repo: embedded-cluster
-          excludes: prerelease, draft
-
       - run: make chart
+
+      - name: Define App Version
+        id: set-version
+        run: echo "version=${{ inputs.version }}-build.${GITHUB_REF_NAME//[^a-zA-Z0-9]/}.${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_OUTPUTS
+
+      - name: Define Channel Name
+        id: set-channel
+        run: echo "name=${{ github.ref_name }}-${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_OUTPUTS
 
       - uses: azure/setup-helm@v3
         with:
@@ -193,7 +194,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ step.set-version.outputs.version }}'
           regex: false
 
       - id: package-helm-chart
@@ -202,13 +203,13 @@ jobs:
           helm dep up --debug && \
           cd .. && \
           helm package \
-            --app-version=${{ inputs.version }} \
-            --version=${{ inputs.version }} \
+            --app-version=${{ inputs.version }}-build.${{ github.run_number }} \
+            --version=${{ inputs.version }}-build.${{ github.run_number }} \
             ./slackernews
 
 
       - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
+        run: cp ./chart/slackernews-${{ step.set-version.outputs.version }}.tgz ./kots
 
       - name: Adds embedded cluster config
         run: |
@@ -244,7 +245,7 @@ jobs:
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
-          replace: '${{ inputs.version }}'
+          replace: '${{ step.set-version.outputs.version }}'
           regex: false
 
       - name: Update chart version in HelmChart kind
@@ -255,26 +256,20 @@ jobs:
           replace: '${{ inputs.namespace }}'
           regex: false
 
-      - name: Provide web image to the airgap builder
-        id: airgap-web-image
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq -i '.spec.builder.images.slackernews.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}"' kots/slackernews-chart.yaml
-
       - name: Add web image signature to airgap bundle
         uses: mikefarah/yq@v4.40.5
         with:
           cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.web-signature }}" ]' kots/replicated-app.yaml
 
       - name: Create the unstable release
-        uses: replicatedhq/action-kots-release@configurable-endpoint
+        id: create-release
+        uses: replicatedhq/create-release@v1.16.2
         with:
-          replicated-app: ${{ inputs.slug }}
-          replicated-api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          replicated-api-origin: https://api.replicated.com/vendor
+          app-slug: ${{ inputs.slug }}
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
           yaml-dir: ./kots
-          promote-channel: "Unstable"
-          version: ${{ inputs.version }}
+          promote-channel: ${{ step.set-channel.outputs.name }}
+          version: ${{ step.set-version.outputs.version }}
 
   deploy:
     runs-on: ubuntu-22.04
@@ -284,3 +279,66 @@ jobs:
       - name: Define Channel Name
         run: echo "CLUSTER_NAME=${{ github.ref_name }}-${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_ENV
 
+      - name: Create Customer 
+        id: create-customer
+        uses: replicatedhq/replicated-actions/create-customer@v1
+        with:
+          app-slug: ${{ secrets.REPLICATED_APP }}
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          customer-name: ${{ github.ref_name }}-${{ inputs.distribution }}-${{ inputs.cluster-version }}
+          channel-slug: ${{ needs.release.outputs.channel-slug }}
+          customer-email: ${{ github.ref_name }}@example.com
+          expires-in: 14
+
+      - name: Create Cluster
+        id: create-cluster
+        uses: replicatedhq/replicated-actions/create-cluster@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          kubernetes-distribution: ${{ inputs.distribution }}
+          kubernetes-version: ${{ inputs.version }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          tags: |
+            - key: action
+              value: ${{ github.action }}
+            - key: run
+              value: ${{ github.run_id }}
+            - key: attempt
+              value: ${{ github.run_attempt }}
+            - key: ref
+              value: ${{ github.ref_name }}
+            - key: actor
+              value: ${{ github.actor }}
+            - key: event
+              value: ${{ github.event }}
+          timeout-minutes: 2
+          ttl: 10m
+
+      - name: Deploy the app
+        uses: replicatedhq/replicated-actions/helm-install@v1
+        with:
+          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
+          helm-path: "helm"
+          registry-username: ${{ github.ref_name }}@example.com
+          registry-password: ${{ steps.create-customer.outputs.license-id }}
+          chart: oci://registry.replicated.com/${{ secrets.REPLICATED_APP }}/${{ needs.push-to-replicated.outputs.channel-slug }}/relmatrix-app
+          name: ${{ env.RELEASE_NAME }}
+          version: ${{ needs.release.outputs.version }}
+          namespace: ${{ env.RELEASE_NAME }}
+          values: |
+
+      - name: Remove Cluster
+        id: remove-cluster
+        uses: replicatedhq/replicated-actions/remove-cluster@v1
+        continue-on-error: true # It could be that the cluster is already removed
+        with:
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+
+      - name: Archive Customer
+        id: archive-customer
+        if: always()
+        uses: replicatedhq/replicated-actions/archive-customer@v1
+        with:
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          customer-id:  ${{ steps.create-customer.outputs.customer-id }}
