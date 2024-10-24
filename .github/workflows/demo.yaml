@@ -41,10 +41,9 @@ on:
           - openshift
           - embedded-cluster
           - kurl
-      cluster-version:
+      version:
         description: Version of the Kubernetes distribution
         required: true
-        default: 1.30
         type: string
       license:
         description: |
@@ -52,20 +51,9 @@ on:
           if you don't specify the licesne
         required: false
         type: string
-      ttl:
-        description: Time to live for the cluster
-        default: 1h
-        required: false
-        type: choice
-        options:
-          - 1h
-          - 2h
-          - 4h
-          - 6h
-          - 8h
-          - 12h
-          - 24h
-          - 48h  
+
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   build:
@@ -90,7 +78,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.REGISTRY }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,11 +89,11 @@ jobs:
           tags: |
                 type=sha,format=long
                 type=schedule
-                type=raw,${{ inputs.version }}-build.${{ github.run_number }}
+                type=raw,${{ inputs.version }}
                 type=ref,event=branch
                 type=ref,event=tag
                 type=ref,event=pr
-          images: ${{ vars.REGISTRY }}/${{ inputs.namespace }}/slackernews-web
+          images: ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web
 
       - uses: int128/docker-build-cache-config-action@v1
         id: cache
@@ -142,23 +130,21 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.REGISTRY }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sign the web image
         id: sign-web
         run: |
-          cosign sign ${{ vars.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
-          echo "signature=$(cosign triangulate ${{ vars.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
+          cosign sign ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
+          echo "signature=$(cosign triangulate ${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
+
 
   release:
     runs-on: ubuntu-22.04
     needs:
       - sign
-    outputs:
-      version: ${{ steps.release.outputs.channel-slug }}
-      channel-slug: ${{ steps.release.outputs.channel-slug }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -166,15 +152,14 @@ jobs:
           ref: ${{ inputs.branch }}
           token: ${{ github.token }} 
 
+      - id: embedded-cluster-version
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          owner: replicatedhq
+          repo: embedded-cluster
+          excludes: prerelease, draft
+
       - run: make chart
-
-      - name: Define App Version
-        id: set-version
-        run: echo "version=${{ inputs.version }}-build.${GITHUB_REF_NAME//[^a-zA-Z0-9]/}.${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_OUTPUTS
-
-      - name: Define Channel Name
-        id: set-channel
-        run: echo "name=${{ github.ref_name }}-${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_OUTPUTS
 
       - uses: azure/setup-helm@v3
         with:
@@ -194,7 +179,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ vars.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ step.set-version.outputs.version }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
       - id: package-helm-chart
@@ -203,13 +188,13 @@ jobs:
           helm dep up --debug && \
           cd .. && \
           helm package \
-            --app-version=${{ inputs.version }}-build.${{ github.run_number }} \
-            --version=${{ inputs.version }}-build.${{ github.run_number }} \
+            --app-version=${{ inputs.version }} \
+            --version=${{ inputs.version }} \
             ./slackernews
 
 
       - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ step.set-version.outputs.version }}.tgz ./kots
+        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
 
       - name: Adds embedded cluster config
         run: |
@@ -245,7 +230,7 @@ jobs:
         with:
           include: 'kots/slackernews-chart.yaml'
           find: '$VERSION'
-          replace: '${{ step.set-version.outputs.version }}'
+          replace: '${{ inputs.version }}'
           regex: false
 
       - name: Update chart version in HelmChart kind
@@ -256,112 +241,23 @@ jobs:
           replace: '${{ inputs.namespace }}'
           regex: false
 
+      - name: Provide web image to the airgap builder
+        id: airgap-web-image
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.spec.builder.images.slackernews.repository = "ghcr.io/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}"' kots/slackernews-chart.yaml
+
       - name: Add web image signature to airgap bundle
         uses: mikefarah/yq@v4.40.5
         with:
           cmd: yq -i '.spec.additionalImages += [ "${{ needs.sign.outputs.web-signature }}" ]' kots/replicated-app.yaml
 
       - name: Create the unstable release
-        id: create-release
-        uses: replicatedhq/create-release@v1.16.2
+        uses: replicatedhq/action-kots-release@configurable-endpoint
         with:
-          app-slug: ${{ inputs.slug }}
-          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          replicated-app: ${{ inputs.slug }}
+          replicated-api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          replicated-api-origin: https://api.replicated.com/vendor
           yaml-dir: ./kots
-          promote-channel: ${{ step.set-channel.outputs.name }}
-          version: ${{ step.set-version.outputs.version }}
-
-  deploy:
-    runs-on: ubuntu-22.04
-    needs:
-      - release
-    steps:
-      - name: Define Channel Name
-        run: echo "CLUSTER_NAME=${{ github.ref_name }}-${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_ENV
-
-      - name: Create Customer 
-        id: create-customer
-        uses: replicatedhq/replicated-actions/create-customer@v1
-        with:
-          app-slug: ${{ secrets.REPLICATED_APP }}
-          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          customer-name: ${{ github.ref_name }}-${{ inputs.distribution }}-${{ inputs.cluster-version }}
-          channel-slug: ${{ needs.release.outputs.channel-slug }}
-          customer-email: ${{ github.ref_name }}@example.com
-          expires-in: 14
-
-      - name: Create Cluster
-        id: create-cluster
-        uses: replicatedhq/replicated-actions/create-cluster@v1
-        with:
-          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          kubernetes-distribution: ${{ inputs.distribution }}
-          kubernetes-version: ${{ inputs.version }}
-          cluster-name: ${{ env.CLUSTER_NAME }}
-          tags: |
-            - key: action
-              value: ${{ github.action }}
-            - key: run
-              value: ${{ github.run_id }}
-            - key: attempt
-              value: ${{ github.run_attempt }}
-            - key: ref
-              value: ${{ github.ref_name }}
-            - key: actor
-              value: ${{ github.actor }}
-            - key: event
-              value: ${{ github.event }}
-          timeout-minutes: 2
-          ttl: ${{ inputs.ttl }}
-
-      - name: Deploy the app
-        uses: replicatedhq/replicated-actions/helm-install@v1
-        with:
-          kubeconfig: ${{ steps.create-cluster.outputs.cluster-kubeconfig }}
-          helm-path: "helm"
-          registry-username: ${{ github.ref_name }}@example.com
-          registry-password: ${{ steps.create-customer.outputs.license-id }}
-          chart: oci://registry.replicated.com/${{ secrets.REPLICATED_APP }}/${{ needs.release.outputs.channel-slug }}/
-          name: ${{ vars.RELEASE_NAME }}
-          version: ${{ needs.release.outputs.version }}
-          namespace: ${{ vars.RELEASE_NAME }}
-          values: |
-            postgres:
-              enabled: true
-              deploy_postgres: true
-              password: this-is-very-unsafe
-            sqlite:
-              enabled: false
-            ingress:
-              enabled: true
-              ingressClassName: contour
-              annotations:
-                kubernetes.io/tls-acme: "true"
-                ingress.kubernetes.io/force-ssl-redirect: "true"
-                cert-manager.io/cluster-issuer: shortrib-clusterissuer
-              tls:
-                enabled: true
-            slack:
-              clientId: ${{ secrets.SLACK_CLIENT_ID }}
-              clientSecret: ${{ secrets.SLACK_CLIENT_SECRET }}
-              userToken: ${{ secrets.SLACK_USER_TOKEN }}
-              botToken: ${{ secrets.SLACK_BOT_TOKEN }}
-            slackernews:
-              domain: ${{ vars.SLACKERNEWS_DOMAIN }}
-              adminUserEmails: ${{ secrets.SLACKERNEWS_ADMIN_USER_EMAILS }}
-
-      - name: Remove Cluster
-        id: remove-cluster
-        uses: replicatedhq/replicated-actions/remove-cluster@v1
-        continue-on-error: true # It could be that the cluster is already removed
-        with:
-          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
-
-      - name: Archive Customer
-        id: archive-customer
-        if: always()
-        uses: replicatedhq/replicated-actions/archive-customer@v1
-        with:
-          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          customer-id:  ${{ steps.create-customer.outputs.customer-id }}
+          promote-channel: "Unstable"
+          version: ${{ inputs.version }}
