@@ -1,0 +1,123 @@
+name: cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch
+        required: true
+        default: main
+        type: string
+      namespace:
+        description: Registry Namespace
+        required: true
+        type: string
+      slug:
+        description: Replicated App Slug
+        required: true
+        type: string
+      version:
+        description: Release Version
+        required: true
+        type: string
+      proxy:
+        description: Proxy Image Registry
+        required: true
+        default: proxy.replicated.com
+        type: string
+      distribution:
+        description: Kubernetes distribution to use
+        required: true
+        default: kind
+        type: choice
+        options:
+          - eks
+          - k3s
+          - rke2
+          - kind
+          - aks
+          - gke
+          - oke
+          - openshift
+          - embedded-cluster
+          - kurl
+      cluster-version:
+        description: Version of the Kubernetes distribution
+        required: true
+        default: 1.30
+        type: string
+      license:
+        description: |
+          License to use for Embedded Cluster. Note, embedded cluster will fail
+          if you don't specify the licesne
+        required: false
+        type: string
+      ttl:
+        description: Time to live for the cluster
+        default: 1h
+        required: false
+        type: choice
+        options:
+          - 1h
+          - 2h
+          - 4h
+          - 6h
+          - 8h
+          - 12h
+          - 24h
+          - 48h  
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      web-tags: ${{ steps.web-meta.outputs.tags }}
+      web-digest: ${{ steps.build-web.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: slackernews/slackernews.git
+          ref: ${{ inputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }} 
+
+  sign:
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    outputs:
+      web-signature: ${{ steps.sign-web.outputs.signature }}
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
+
+  release:
+    runs-on: ubuntu-22.04
+    needs:
+      - sign
+    outputs:
+      version: ${{ steps.release.outputs.channel-slug }}
+      channel-slug: ${{ steps.release.outputs.channel-slug }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: slackernews/slackernews.git
+          ref: ${{ inputs.branch }}
+          token: ${{ github.token }} 
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs:
+      - release
+    steps:
+      - name: Define Channel Name
+        run: echo "CLUSTER_NAME=${{ github.ref_name }}-${GITHUB_RUN_ID}${GITHUB_RUN_ATTEMPT}" >> $GITHUB_ENV
+
