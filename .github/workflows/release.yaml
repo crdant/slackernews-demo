@@ -188,7 +188,7 @@ jobs:
       - name: Add web image signature to the air-gap bundle
         uses: mikefarah/yq@master
         with:
-          cmd: yq '.additionalImages += [ ${{ needs.sign.outputs.web-signature }} ]' kots/replicated-app.yaml
+          cmd: yq '.additionalImages += [ "${{ needs.sign.outputs.web-signature }}" ]' kots/replicated-app.yaml
 
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
