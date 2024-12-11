@@ -147,6 +147,14 @@ jobs:
           replace: 'proxy/${{ inputs.slug }}/${{ env.REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
           regex: false
 
+      - name: Update the values.yaml with the version of the image
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$VERSION'
+          replace: '${{ inputs.version }}'
+          regex: false
+
       - id: package-helm-chart
         run: |
           cd chart/slackernews && \
