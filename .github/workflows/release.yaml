@@ -214,7 +214,7 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$SECUREBUILD_PATH'
-          replace: 'proxy/${{ secrets.REPLICATED_APP }}/cve0.io'
+          replace: 'proxy/${{ inputs.slug }}/cve0.io'
           regex: false
 
       - id: package-helm-chart
