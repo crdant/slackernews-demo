@@ -61,11 +61,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.SECURE_BUILD_REGISTRY }}
-<<<<<<< HEAD
           username: replicated
-=======
-          username: ${{ github.actor }}
->>>>>>> b0fb7a0 (Logs into SecureBuild registry)
           password: ${{ secrets.SECURE_BUILD_TOKEN }}
 
       - name: Extract metadata (tags, labels) for web image
@@ -124,7 +120,6 @@ jobs:
         run: |
           cosign sign ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
-<<<<<<< HEAD
 
   attest:
     runs-on: ubuntu-22.04
@@ -163,8 +158,6 @@ jobs:
       - name: Attach SBOM signature to image in registry
         run: |
           cosign attach sbom --sbom sbom.spdx.json.sig ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} 
-=======
->>>>>>> b0fb7a0 (Logs into SecureBuild registry)
 
   release:
     runs-on: ubuntu-22.04
