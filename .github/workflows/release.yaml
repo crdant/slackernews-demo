@@ -28,7 +28,7 @@ on:
 
 env:
   SLACKERNEWS_REGISTRY: ghcr.io
-  SECURE_BUILD_REGISTRY: ghcr.io
+  SECURE_BUILD_REGISTRY: cve0.io
 
 jobs:
   build:
