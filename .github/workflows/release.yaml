@@ -201,7 +201,7 @@ jobs:
           replace: '${{ inputs.version }}'
           regex: false
 
-      - name: Update the values.yaml with the image path
+      - name: Update the values.yaml with the secure built image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           include: 'chart/slackernews/values.yaml'
@@ -263,4 +263,4 @@ jobs:
           replicated-api-origin: https://api.replicated.com/vendor
           yaml-dir: ./kots
           promote-channel: "Unstable"
-          ersion: ${{ inputs.version }}
+          version: ${{ inputs.version }}
