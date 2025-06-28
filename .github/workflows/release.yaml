@@ -152,7 +152,15 @@ jobs:
         with:
           include: 'chart/slackernews/values.yaml'
           find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web:${{ inputs.version }}'
+          replace: 'proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web'
+          regex: false
+
+      - name: Update the values.yaml with the image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$VERSION'
+          replace: '${{ inputs.version }}'
           regex: false
 
       - name: Update the values.yaml with the image path
