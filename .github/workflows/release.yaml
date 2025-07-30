@@ -136,6 +136,7 @@ jobs:
         with:
           image: ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }}
           artifact-name: sbom.spdx.json
+          github-token: ${{ github.token }}
 
       - name: Sign SBOM (keyless OIDC)
         run: |
