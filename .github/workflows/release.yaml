@@ -145,11 +145,11 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           image: ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }}
-          artifact-name: sbom.spdx.json
+          output-file: sbom.spdx.json
 
       - name: Sign SBOM (keyless OIDC)
         run: |
-          cosign sign-blob --yes --output-signature sbom.spdx.json.sig sbom.spdx.json
+          cosign sign-blob --yes --output-signature sbom.spdx.json.sig sbom.spdx.json --yes
 
       - name: Attach SBOM to image in registry
         run: |
