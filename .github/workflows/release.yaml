@@ -139,7 +139,7 @@ jobs:
           syft attest ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} \
             --output spdx-json --enrich javascript > sbom.spdx.json
 
-       - name: Sign SBOM (keyless OIDC)
+      - name: Sign SBOM (keyless OIDC)
         run: |
           cosign sign-blob --yes --output-signature sbom.spdx.json.sig sbom.spdx.json
 
