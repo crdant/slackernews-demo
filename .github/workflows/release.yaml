@@ -124,6 +124,7 @@ jobs:
   attest:
     runs-on: ubuntu-22.04
     needs:
+      - build
       - sign
     permissions:
       contents: read
