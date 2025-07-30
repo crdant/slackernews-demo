@@ -137,10 +137,7 @@ jobs:
       - name: Generate and push SBOM as OCI artifact
         run: |
           syft attest ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} \
-            --oidc-issuer https://token.actions.githubusercontent.com \
-            --oidc-client-id sigstore \
-            --output spdx-json \
-            --upload
+            --output spdx-json --enrich javascript
 
   release:
     runs-on: ubuntu-22.04
