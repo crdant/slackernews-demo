@@ -121,10 +121,30 @@ jobs:
           cosign sign ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
 
-  release:
+  attest:
     runs-on: ubuntu-22.04
     needs:
       - sign
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Install Syft
+        uses: anchore/sbom-action/download-syft@v0.16.0
+
+      - name: Generate and push SBOM as OCI artifact
+        run: |
+          syft attest ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} \
+            --oidc-issuer https://token.actions.githubusercontent.com \
+            --oidc-client-id sigstore \
+            --output spdx-json \
+            --upload
+
+  release:
+    runs-on: ubuntu-22.04
+    needs:
+      - attest
     steps:
       - uses: actions/checkout@v4
         with:
