@@ -121,10 +121,48 @@ jobs:
           cosign sign ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} --yes
           echo "signature=$(cosign triangulate ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }})" >> $GITHUB_OUTPUT
 
+  attest:
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+      - sign
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.SLACKERNEWS_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }}
+          output-file: sbom.spdx.json
+
+      - name: Sign SBOM (keyless OIDC)
+        run: |
+          cosign sign-blob --yes --output-signature sbom.spdx.json.sig sbom.spdx.json --yes
+
+      - name: Attach SBOM to image in registry
+        run: |
+          cosign attach sbom --sbom sbom.spdx.json ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} 
+
+      - name: Attach SBOM signature to image in registry
+        run: |
+          cosign attach sbom --sbom sbom.spdx.json.sig ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} 
+
   release:
     runs-on: ubuntu-22.04
     needs:
-      - sign
+      - attest
     steps:
       - uses: actions/checkout@v4
         with:
