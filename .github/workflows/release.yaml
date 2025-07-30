@@ -137,7 +137,19 @@ jobs:
       - name: Generate and push SBOM as OCI artifact
         run: |
           syft attest ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} \
-            --output spdx-json --enrich javascript
+            --output spdx-json --enrich javascript > sbom.spdx.json
+
+       - name: Sign SBOM (keyless OIDC)
+        run: |
+          cosign sign-blob --yes --output-signature sbom.spdx.json.sig sbom.spdx.json
+
+      - name: Attach SBOM to image in registry
+        run: |
+          cosign attach sbom --sbom sbom.spdx.json ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} 
+
+      - name: Attach SBOM signature to image in registry
+        run: |
+          cosign attach sbom --sbom sbom.spdx.json.sig ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} 
 
   release:
     runs-on: ubuntu-22.04
