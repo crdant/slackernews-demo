@@ -131,13 +131,11 @@ jobs:
       packages: write
       id-token: write
     steps:
-      - name: Install Syft
-        uses: anchore/sbom-action/download-syft@v0.16.0
-
-      - name: Generate and push SBOM as OCI artifact
-        run: |
-          syft attest ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }} \
-            --output spdx-json --enrich javascript > sbom.spdx.json
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web@${{ needs.build.outputs.web-digest }}
+          artifact-name: sbom.spdx.json
 
       - name: Sign SBOM (keyless OIDC)
         run: |
