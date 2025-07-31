@@ -65,7 +65,7 @@ jobs:
       - name: Setup the Enterprise Portal branding
         run: |
           replicated api put /v3/app/${APP_ID}/enterpriseportal/branding \
-            --body "$(cat branding/branding.json)"
+            --body "$(cat branding/enterprise-portal.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
           REPLICATED_API_TOKEN: ${{ needs.prepare.outputs.api-token }}
