@@ -65,11 +65,6 @@ jobs:
     needs: 
       - prepare
     steps:
-      - name: Install Replicated CLI
-        run: |
-          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
-            | sudo bash
-
       - name: Checkout branding
         uses: actions/checkout@v4
 
@@ -88,8 +83,11 @@ jobs:
 
       - name: Setup the Enterprise Portal email templates
         run: |
-          replicated api put /v3/app/${APP_ID}/enterprise-portal/email-templates \
-            --body "$(cat branding/email-templates.json)"
+          curl -X PUT \
+            -H "Authorization: ${REPLICATED_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d @branding/email-templates.json \
+            "${REPLICATED_API_ORIGIN}/v3/app/${APP_ID}/enterprise-portal/email-templates"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
           REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
