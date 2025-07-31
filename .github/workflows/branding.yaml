@@ -73,6 +73,19 @@ jobs:
       - name: Checkout branding
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'branding/email-template-builder/package-lock.json'
+
+      - name: Build email templates from MJML sources
+        run: |
+          cd branding/email-template-builder
+          npm ci
+          npm run build
+
       - name: Setup the Enterprise Portal email templates
         run: |
           replicated api put /v3/app/${APP_ID}/enterprise-portal/email-templates \

@@ -1,0 +1,27 @@
+{
+  "id": "trialExistingCustomer",
+  "name": "Trial Signup - Existing Customer",
+  "subject": "Welcome back to {{app_name}} - You're already set up!",
+  "preview_text": "No trial needed - you already have full access",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#FF6B35",
+  "accent_color": "#38A169",
+  "button_color": "#FF6B35",
+  "highlight_bg_color": "#F0FFF4",
+  
+  "badge_text": "Existing Customer",
+  "header_emoji": "👋",
+  "main_title": "You're Already All Set!",
+  
+  "content_icon": "✅",
+  "highlight_title": "Great news! You already have access to {{app_name}}",
+  "highlight_description": "No need for a trial - you have full access to all features.",
+  "button_text": "Access Your Dashboard 🚀",
+  "action_url": "{{login_url}}",
+  
+  "signature_text": "Happy to have you back!",
+  
+  "app_name": "{{app_name}}",
+  "login_url": "{{login_url}}"
+}

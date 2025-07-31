@@ -1,0 +1,203 @@
+<mjml lang="en">
+  <mj-head>
+    <mj-title>{{subject}}</mj-title>
+    <mj-preview>{{preview_text}}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" />
+      <mj-section background-color="#F7FAFC" padding="0" />
+      <mj-column padding="0" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      :root {
+        --header-color: {{header_color}};
+        --accent-color: {{accent_color}};
+        --button-color: {{button_color}};
+        --badge-text: "{{badge_text}}";
+      }
+      
+      .email-wrapper {
+        background-color: #FFFFFF;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E2E8F0;
+        overflow: hidden;
+        margin: 40px auto;
+        max-width: 600px;
+      }
+      
+      .status-badge {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-radius: 25px !important;
+        color: #FFFFFF !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        padding: 8px 20px !important;
+        margin-bottom: 16px !important;
+        display: inline-block !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+      }
+      
+      .logo-text {
+        color: #FFFFFF !important;
+        font-size: 32px !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+        text-decoration: none !important;
+      }
+      
+      .header-emoji {
+        color: #FFFFFF !important;
+        font-size: 48px !important;
+        margin-top: 16px !important;
+      }
+      
+      .main-title {
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: #2D3748 !important;
+        text-align: center !important;
+        margin-bottom: 0px !important;
+        line-height: 1.2 !important;
+      }
+      
+      .content-highlight {
+        border-radius: 12px !important;
+        border-left: 4px solid var(--accent-color) !important;
+      }
+      
+      .highlight-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: var(--accent-color);
+      }
+      
+      .highlight-text {
+        font-size: 18px;
+        color: #2D3748 !important;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      
+      .highlight-description {
+        color: #4A5568;
+        margin-bottom: 20px;
+      }
+      
+      .action-button {
+        background-color: var(--button-color) !important;
+        border: none;
+        border-radius: 12px;
+        color: #FFFFFF !important;
+        display: inline-block;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+        padding: 20px 40px;
+        text-align: center;
+        text-decoration: none !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+      
+      .action-button:visited,
+      .action-button:hover,
+      .action-button:active {
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+      }
+      
+      .footer-section {
+        text-align: center;
+        padding-top: 32px;
+        border-top: 1px solid #E2E8F0;
+        background-color: #FFFFFF;
+      }
+      
+      .signature {
+        font-size: 16px;
+        color: #4A5568 !important;
+        margin-bottom: 20px;
+      }
+      
+      @media only screen and (max-width: 640px) {
+        .email-wrapper {
+          margin: 20px 10px !important;
+        }
+        .header-section {
+          padding: 32px 20px !important;
+        }
+        .content-highlight {
+          padding: 24px 16px !important;
+        }
+        .action-button {
+          width: 90% !important;
+          max-width: none !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#F7FAFC">
+    <!-- Header Section -->
+    <mj-section css-class="header-section" background-color="{{header_color}}" padding="40px">
+      <mj-column>
+        <mj-text css-class="status-badge" align="center">
+          {{badge_text}}
+        </mj-text>
+        <mj-text css-class="logo-text" align="center">
+          ⚡{{app_name}}
+        </mj-text>
+        <mj-text css-class="header-emoji" align="center">
+          {{header_emoji}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+    <!-- Content Section -->
+    <mj-section background-color="#FFFFFF" padding="40px">
+      <mj-column>
+        <mj-text css-class="main-title" align="center">
+          {{main_title}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+    <!-- Content Highlight Box -->
+    <mj-section css-class="content-highlight" background-color="{{highlight_bg_color}}" padding="32px">
+      <mj-column>
+        <mj-text css-class="highlight-icon" align="center">
+          {{content_icon}}
+        </mj-text>
+        <mj-text css-class="highlight-text" align="center">
+          {{highlight_title}}
+        </mj-text>
+        <mj-text css-class="highlight-description" align="center">
+          {{highlight_description}}
+        </mj-text>
+        <mj-button css-class="action-button" href="{{action_url}}">
+          {{button_text}}
+        </mj-button>
+      </mj-column>
+    </mj-section>
+    
+    <!-- Additional Content -->
+    {{#if additional_content}}
+    <mj-section background-color="#FFFFFF" padding="20px 40px 0px">
+      <mj-column>
+        <mj-text align="center" color="#4A5568">
+          {{additional_content}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    {{/if}}
+    
+    <!-- Footer Section -->
+    <mj-section css-class="footer-section" background-color="#FFFFFF" padding="32px 40px 40px">
+      <mj-column>
+        <mj-text css-class="signature" align="center">
+          {{signature_text}}<br>
+          The {{app_name}} Team ⚡
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
