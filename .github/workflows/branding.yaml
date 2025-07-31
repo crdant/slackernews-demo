@@ -52,7 +52,7 @@ jobs:
       
       - name: Setup the Enterprise Portal branding
         run: |
-          replicated api put /v3/app/${APP_ID}/enterpriseportal/branding \
+          replicated api put /v3/app/${APP_ID}/enterprise-portal/branding \
             --body "$(cat branding/enterprise-portal.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: Setup the Enterprise Portal email templates
         run: |
-          replicated api put /v3/app/${APP_ID}/enterpriseportal/email-templates \
+          replicated api put /v3/app/${APP_ID}/enterprise-portal/email-templates \
             --body "$(cat branding/email-templates.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
