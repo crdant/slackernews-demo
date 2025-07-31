@@ -21,23 +21,8 @@ jobs:
   prepare:
     runs-on: ubuntu-22.04
     outputs:
-      api-token: ${{ steps.prepare.outputs.api-token }}
-      api-origin: ${{ steps.prepare.outputs.api-origin }}
       app-id: ${{ steps.app-id.outputs.app-id }}
     steps:
-      - name: Prepare for Vendor API connection
-        id: prepare
-        run: |
-          # Use provided token or fall back to secret
-          if [ -n "${{ inputs.api-token }}" ]; then
-            echo "api-token=${{ inputs.api-token }}" >> $GITHUB_OUTPUT
-          else
-            echo "api-token=${{ secrets.REPLICATED_API_TOKEN }}" >> $GITHUB_OUTPUT
-          fi
-          
-          # Use provided origin or fall back to default
-          echo "api-origin=${{ inputs.api-origin }}" >> $GITHUB_OUTPUT
-
       - name: Install Replicated CLI
         run: |
           curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
@@ -49,8 +34,8 @@ jobs:
           app_id=$(replicated app ls --output json | jq -r --arg slug "${{ inputs.slug }}" '.[] | select ( .app.slug == $slug ) | .app.id')
           echo "app-id=${app_id}" >> $GITHUB_OUTPUT
         env:
-          REPLICATED_API_TOKEN: ${{ steps.prepare.outputs.api-token }}
-          REPLICATED_API_ORIGIN: ${{ steps.prepare.outputs.api-origin }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
 
   portal:
     runs-on: ubuntu-22.04
@@ -71,8 +56,8 @@ jobs:
             --body "$(cat branding/enterprise-portal.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
-          REPLICATED_API_TOKEN: ${{ needs.prepare.outputs.api-token }}
-          REPLICATED_API_ORIGIN: ${{ needs.prepare.outputs.api-origin }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
 
 
   email:
@@ -94,5 +79,5 @@ jobs:
             --body "$(cat branding/email-templates.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
-          REPLICATED_API_TOKEN: ${{ needs.prepare.outputs.api-token }}
-          REPLICATED_API_ORIGIN: ${{ needs.prepare.outputs.api-origin }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
