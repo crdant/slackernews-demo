@@ -36,20 +36,21 @@
         padding: 20px !important;
       }
       
-      .status-badge {
+      .status-badge * {
         background: rgba(255, 255, 255, 0.2) !important;
         border-radius: 25px !important;
         color: #FFFFFF !important;
         font-size: 14px !important;
         font-weight: 600 !important;
         padding: 8px 20px !important;
-        margin-bottom: 16px !important;
+        margin: 0 auto 16px auto !important;
         display: inline-block !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
+        text-align: center !important;
       }
       
-      .logo-text {
+      .logo-text * {
         color: #FFFFFF !important;
         font-size: 32px !important;
         font-weight: 700 !important;
@@ -57,13 +58,13 @@
         text-decoration: none !important;
       }
       
-      .header-emoji {
+      .header-emoji * {
         color: #FFFFFF !important;
         font-size: 48px !important;
         margin-top: 16px !important;
       }
       
-      .main-title {
+      .main-title * {
         font-size: 28px !important;
         font-weight: 700 !important;
         color: #2D3748 !important;
@@ -77,42 +78,54 @@
         border-left: 4px solid var(--accent-color) !important;
       }
       
-      .highlight-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-        color: var(--accent-color);
+      .highlight-icon * {
+        font-size: 48px !important;
+        margin-bottom: 16px !important;
+        color: var(--accent-color) !important;
       }
       
-      .highlight-text {
-        font-size: 18px;
+      .highlight-text * {
+        font-size: 18px !important;
         color: #2D3748 !important;
-        font-weight: 600;
-        margin-bottom: 8px;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
       }
       
-      .highlight-description {
-        color: #4A5568;
-        margin-bottom: 20px;
+      .highlight-description * {
+        color: #4A5568 !important;
+        margin-bottom: 20px !important;
+        font-size: 16px !important;
       }
       
-      .action-button {
+      .action-button table {
+        margin: 0 auto !important;
+      }
+      
+      .action-button td {
         background-color: var(--button-color) !important;
-        border: none;
-        border-radius: 12px;
-        color: #FFFFFF !important;
-        display: inline-block;
-        font-size: 18px;
-        font-weight: 700;
-        line-height: 1.4;
-        padding: 20px 40px;
-        text-align: center;
-        text-decoration: none !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        border: none !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
       }
       
-      .action-button:visited,
-      .action-button:hover,
-      .action-button:active {
+      .action-button a {
+        background-color: var(--button-color) !important;
+        color: #FFFFFF !important;
+        display: inline-block !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        line-height: 1.4 !important;
+        padding: 20px 40px !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        border-radius: 12px !important;
+      }
+      
+      .action-button a:visited,
+      .action-button a:hover,
+      .action-button a:active {
+        background-color: var(--button-color) !important;
         color: #FFFFFF !important;
         text-decoration: none !important;
       }
