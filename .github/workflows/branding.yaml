@@ -49,8 +49,8 @@ jobs:
           app_id=$(replicated app ls --output json | jq -r --arg slug "${{ inputs.slug }}" '.[] | select ( .app.slug == $slug ) | .app.id')
           echo "app-id=${app_id}" >> $GITHUB_OUTPUT
         env:
-          REPLICATED_API_TOKEN: ${{ step.prepare.outputs.api-token }}
-          REPLICATED_API_ORIGIN: ${{ step.prepare.outputs.api-origin }}
+          REPLICATED_API_TOKEN: ${{ steps.prepare.outputs.api-token }}
+          REPLICATED_API_ORIGIN: ${{ steps.prepare.outputs.api-origin }}
 
   portal:
     runs-on: ubuntu-22.04
