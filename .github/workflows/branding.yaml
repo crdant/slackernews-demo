@@ -1,0 +1,83 @@
+name: branding
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Replicated App Slug
+        required: true
+        type: string
+      api-token:
+        description: Replicated API Token
+        required: false
+        type: string
+      api-origin:
+        description: Replicated API Origin
+        required: false
+        default: https://api.replicated.com/vendor
+        type: string
+
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    outputs:
+      app-id: ${{ steps.app-id.outputs.app-id }}
+    steps:
+      - name: Install Replicated CLI
+        run: |
+          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
+            | sudo bash
+
+      - name: Fetch the application ID from the slug
+        id: app-id
+        run: |
+          app_id=$(replicated app ls --output json | jq -r --arg slug "${{ inputs.slug }}" '.[] | select ( .app.slug == $slug ) | .app.id')
+          echo "app-id=${app_id}" >> $GITHUB_OUTPUT
+        env:
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
+
+  portal:
+    runs-on: ubuntu-22.04
+    needs: 
+      - prepare
+    steps:
+      - name: Install Replicated CLI
+        run: |
+          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
+            | sudo bash
+
+      - name: Checkout branding
+        uses: actions/checkout@v4
+      
+      - name: Setup the Enterprise Portal branding
+        run: |
+          replicated api put /v3/app/${APP_ID}/enterprise-portal/branding \
+            --body "$(cat branding/enterprise-portal.json)"
+        env:
+          APP_ID: ${{ needs.prepare.outputs.app-id }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
+
+
+  email:
+    runs-on: ubuntu-22.04
+    needs: 
+      - prepare
+    steps:
+      - name: Install Replicated CLI
+        run: |
+          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
+            | sudo bash
+
+      - name: Checkout branding
+        uses: actions/checkout@v4
+
+      - name: Setup the Enterprise Portal email templates
+        run: |
+          replicated api put /v3/app/${APP_ID}/enterprise-portal/email-templates \
+            --body "$(cat branding/email-templates.json)"
+        env:
+          APP_ID: ${{ needs.prepare.outputs.app-id }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
