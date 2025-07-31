@@ -1,0 +1,29 @@
+{
+  "id": "newInstance",
+  "name": "New Instance Online",
+  "subject": "🎉 {{app_name}} Instance {{instance_name}} is Online!",
+  "preview_text": "Your new instance is ready and fully operational",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#FF6B35",
+  "accent_color": "#38A169",
+  "button_color": "#FF6B35",
+  "highlight_bg_color": "#F0FFF4",
+  
+  "badge_text": "New Instance",
+  "header_emoji": "🎉",
+  "main_title": "Your Instance is Ready!",
+  
+  "content_icon": "🖥️",
+  "highlight_title": "{{instance_name}}",
+  "highlight_description": "Your new {{app_name}} instance has been successfully created and is ready for your team. All services are running and the instance is fully operational.",
+  "button_text": "Open Instance Dashboard 🚀",
+  "action_url": "{{instance_url}}",
+  
+  "additional_content": "You can view the instance and access update instructions as they become available at: <a href=\"{{instance_url}}\" style=\"color: #FF6B35 !important;\">{{instance_url}}</a>",
+  "signature_text": "Excited to see what you build!",
+  
+  "app_name": "{{app_name}}",
+  "instance_name": "{{instance_name}}",
+  "instance_url": "{{instance_url}}"
+}

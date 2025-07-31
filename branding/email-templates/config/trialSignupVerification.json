@@ -1,0 +1,30 @@
+{
+  "id": "trialSignupVerification",
+  "name": "Trial Signup Verification",
+  "subject": "Verify your email - Start your {{app_name}} trial!",
+  "preview_text": "Verify your email to begin your free trial",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#FF6B35",
+  "accent_color": "#FF6B35",
+  "button_color": "#FF6B35",
+  "highlight_bg_color": "#F7FAFC",
+  
+  "badge_text": "Free Trial",
+  "header_emoji": "📧",
+  "main_title": "Verify Your Email",
+  
+  "content_icon": "{{verification_code}}",
+  "highlight_title": "{{verification_code}}",
+  "highlight_description": "Enter this code to verify your email and start your trial",
+  "button_text": "Verify Email Instantly ✉️",
+  "action_url": "{{login_url}}",
+  
+  "additional_content": "After verification, you can log in at: <a href=\"{{general_login_url}}\" style=\"color: #FF6B35 !important;\">{{general_login_url}}</a>",
+  "signature_text": "Ready to revolutionize your team's knowledge sharing?",
+  
+  "app_name": "{{app_name}}",
+  "verification_code": "{{verification_code}}",
+  "login_url": "{{login_url}}",
+  "general_login_url": "{{general_login_url}}"
+}

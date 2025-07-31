@@ -1,0 +1,45 @@
+{
+  "name": "email-template-builder",
+  "version": "1.0.0",
+  "description": "MJML + PostCSS email template build system for SlackerNews",
+  "main": "scripts/build.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:template": "node scripts/build.js",
+    "dev": "npm run build && echo 'Templates built successfully'",
+    "clean": "rm -rf dist templates",
+    "prebuild": "npm run clean"
+  },
+  "keywords": [
+    "email",
+    "templates", 
+    "mjml",
+    "postcss",
+    "slackernews"
+  ],
+  "author": "SlackerNews Team",
+  "license": "MIT",
+  "dependencies": {
+    "mjml": "^4.14.1",
+    "postcss": "^8.4.32",
+    "postcss-custom-properties": "^13.3.4",
+    "postcss-nested": "^6.0.1",
+    "autoprefixer": "^10.4.16",
+    "cssnano": "^6.0.2",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/replicated/slackernews-demo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/replicated/slackernews-demo/issues"
+  },
+  "homepage": "https://github.com/replicated/slackernews-demo#readme"
+}

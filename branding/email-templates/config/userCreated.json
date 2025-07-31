@@ -1,0 +1,29 @@
+{
+  "id": "userCreated",
+  "name": "User Created",
+  "subject": "👤 New User Added to {{team_name}} - {{app_name}}",
+  "preview_text": "A new team member has joined your organization",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#38A169",
+  "accent_color": "#38A169",
+  "button_color": "#38A169",
+  "highlight_bg_color": "#F0FFF4",
+  
+  "badge_text": "Admin Notification",
+  "header_emoji": "👤",
+  "main_title": "Team Member Added",
+  
+  "content_icon": "✅",
+  "highlight_title": "{{user_email}}",
+  "highlight_description": "A new user has been added to {{team_name}} on {{app_name}}. This user now has access to your team's {{app_name}} Enterprise Portal and can participate in link sharing, discussions, and team insights.",
+  "button_text": "Open Team Settings ⚙️",
+  "action_url": "{{team_settings_url}}",
+  
+  "signature_text": "Keeping you informed,",
+  
+  "app_name": "{{app_name}}",
+  "team_name": "{{team_name}}",
+  "user_email": "{{user_email}}",
+  "team_settings_url": "{{team_settings_url}}"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "versionUpdateAvailable",
+  "name": "Version Update Available",
+  "subject": "🚀 {{app_name}} {{version_label}} is Here - New Features Await!",
+  "preview_text": "Your update is ready - new features and improvements await",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#FF6B35",
+  "accent_color": "#38A169",
+  "button_color": "#FF6B35",
+  "highlight_bg_color": "#F0FFF4",
+  
+  "badge_text": "New Release",
+  "header_emoji": "🚀",
+  "main_title": "Ready for Something Amazing?",
+  
+  "content_icon": "🎉",
+  "highlight_title": "{{app_name}} {{version_label}} Available Now",
+  "highlight_description": "We've been working hard to bring you exciting new features and improvements.",
+  "button_text": "Get Update Instructions ⬇️",
+  "action_url": "{{update_url}}",
+  
+  "additional_content": "View complete release notes at: <a href=\"{{release_notes_url}}\" style=\"color: #FF6B35 !important;\">{{release_notes_url}}</a>",
+  "signature_text": "Excited to see what you build with {{version_label}}!",
+  
+  "app_name": "{{app_name}}",
+  "version_label": "{{version_label}}",
+  "update_url": "{{update_url}}",
+  "release_notes_url": "{{release_notes_url}}"
+}

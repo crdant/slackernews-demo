@@ -1,0 +1,29 @@
+{
+  "id": "licenseExpiration",
+  "name": "License Expiration Warning",
+  "subject": "⏰ {{app_name}} License Renewal - {{days_until_expiration}} Days Remaining",
+  "preview_text": "Your license expires soon - renewal required to maintain access",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#F56565",
+  "accent_color": "#F56565",
+  "button_color": "#F56565",
+  "highlight_bg_color": "#FFF5F5",
+  
+  "badge_text": "License Renewal",
+  "header_emoji": "⏰",
+  "main_title": "License Renewal Reminder",
+  
+  "content_icon": "{{days_until_expiration}}",
+  "highlight_title": "Days Remaining",
+  "highlight_description": "Your {{app_name}} license for {{instance_name}} is set to expire in {{days_until_expiration}} days. To ensure uninterrupted access to {{app_name}} for your team, please contact your account manager to discuss renewal options before your license expires.",
+  "button_text": "Contact Account Manager 📧",
+  "action_url": "mailto:{{account_manager_email}}",
+  
+  "signature_text": "We value your partnership,",
+  
+  "app_name": "{{app_name}}",
+  "instance_name": "{{instance_name}}",
+  "days_until_expiration": "{{days_until_expiration}}",
+  "account_manager_email": "{{account_manager_email}}"
+}

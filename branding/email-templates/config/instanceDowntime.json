@@ -1,0 +1,29 @@
+{
+  "id": "instanceDowntime",
+  "name": "Instance Downtime Alert",
+  "subject": "🚨 {{app_name}} Instance Alert - {{instance_name}} Experiencing Issues",
+  "preview_text": "Service interruption detected - immediate attention required",
+  "fromAddress": "SlackerNews Customer Success <contact@replicated.com>",
+  
+  "header_color": "#E53E3E",
+  "accent_color": "#E53E3E",
+  "button_color": "#E53E3E",
+  "highlight_bg_color": "#FFF5F5",
+  
+  "badge_text": "Service Alert",
+  "header_emoji": "🚨",
+  "main_title": "Service Interruption Alert",
+  
+  "content_icon": "⚠️",
+  "highlight_title": "Instance: {{instance_name}}",
+  "highlight_description": "Your {{app_name}} instance is experiencing downtime. Our monitoring systems have detected that several key services are not responding to heartbeat requests.",
+  "button_text": "View Instance Details 🔧",
+  "action_url": "{{instance_url}}",
+  
+  "additional_content": "For immediate support, please open a support ticket with our team directly.",
+  "signature_text": "We're working to resolve this quickly,<br>The {{app_name}} Support Team 🛠️",
+  
+  "app_name": "{{app_name}}",
+  "instance_name": "{{instance_name}}",
+  "instance_url": "{{instance_url}}"
+}
