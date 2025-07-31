@@ -78,11 +78,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'branding/email-template-builder/package-lock.json'
+          cache-dependency-path: 'branding/email-templates/package-lock.json'
 
       - name: Build email templates from MJML sources
         run: |
-          cd branding/email-template-builder
+          cd branding/email-templates
           npm ci
           npm run build
 
