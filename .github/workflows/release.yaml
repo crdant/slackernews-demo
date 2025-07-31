@@ -25,6 +25,14 @@ on:
         required: true
         default: proxy.replicated.com
         type: string
+      api-endpoint:
+        description: Replicated API Endpoint
+        required: false
+        type: string
+      api-token:
+        description: Replicated API Token
+        required: false
+        type: string
 
 env:
   SLACKERNEWS_REGISTRY: ghcr.io
@@ -201,6 +209,14 @@ jobs:
           replace: '${{ inputs.version }}'
           regex: false
 
+      - name: Update the values.yaml with the secure built image path
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          include: 'chart/slackernews/values.yaml'
+          find: '$SECUREBUILD_PATH'
+          replace: 'proxy/${{ inputs.slug }}/cve0.io'
+          regex: false
+
       - name: Update the values.yaml with the image path
         uses: jacobtomlinson/gha-find-replace@v2
         with:
@@ -218,7 +234,6 @@ jobs:
             --app-version=${{ inputs.version }} \
             --version=${{ inputs.version }} \
             ./slackernews
-
 
       - name: Copy the helm chart to the kots directory
         run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
@@ -247,12 +262,27 @@ jobs:
           replace: '${{ inputs.namespace }}'
           regex: false
 
+      - name: Prepare API parameters for release action
+        id: prepare-api
+        run: |
+          if [ -z "${{ inputs.api-endpoint }}" ]; then
+            echo "api-endpoint=https://api.replicated.com/vendor" >> $GITHUB_OUTPUT
+          else
+            echo "api-endpoint=${{ inputs.api-endpoint }}" >> $GITHUB_OUTPUT
+          fi
+
+          if [ -z "${{ inputs.api-token }}" ]; then
+            echo "api-token=${{ secrets.REPLICATED_API_TOKEN }}" >> $GITHUB_OUTPUT
+          else
+            echo "api-token=${{ inputs.api-token }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create the unstable release
         uses: replicatedhq/action-kots-release@configurable-endpoint
         with:
           replicated-app: ${{ inputs.slug }}
-          replicated-api-token: ${{ secrets.REPLICATED_API_TOKEN }}
-          replicated-api-origin: https://api.replicated.com/vendor
+          replicated-api-token: ${{ steps.prepare-api.outputs.api-token }}
+          replicated-api-origin: ${{ steps.prepare-api.outputs.api-endpoint }}
           yaml-dir: ./kots
           promote-channel: "Unstable"
           version: ${{ inputs.version }}
