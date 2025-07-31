@@ -15,14 +15,25 @@
         --badge-text: "{{badge_text}}";
       }
       
+      body {
+        background-color: #F7FAFC !important;
+        padding: 40px 0;
+        margin: 0;
+      }
+      
       .email-wrapper {
-        background-color: #FFFFFF;
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        border: 1px solid #E2E8F0;
-        overflow: hidden;
-        margin: 40px auto;
-        max-width: 600px;
+        background-color: #FFFFFF !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #E2E8F0 !important;
+        overflow: hidden !important;
+        margin: 0 auto !important;
+        max-width: 600px !important;
+        width: 100% !important;
+      }
+      
+      .body-container {
+        padding: 20px !important;
       }
       
       .status-badge {
@@ -57,7 +68,7 @@
         font-weight: 700 !important;
         color: #2D3748 !important;
         text-align: center !important;
-        margin-bottom: 0px !important;
+        margin-bottom: 32px !important;
         line-height: 1.2 !important;
       }
       
@@ -136,21 +147,23 @@
       }
     </mj-style>
   </mj-head>
-  <mj-body background-color="#F7FAFC">
-    <!-- Header Section -->
-    <mj-section css-class="header-section" background-color="{{header_color}}" padding="40px">
-      <mj-column>
-        <mj-text css-class="status-badge" align="center">
-          {{badge_text}}
-        </mj-text>
-        <mj-text css-class="logo-text" align="center">
-          ⚡{{app_name}}
-        </mj-text>
-        <mj-text css-class="header-emoji" align="center">
-          {{header_emoji}}
-        </mj-text>
-      </mj-column>
-    </mj-section>
+  <mj-body background-color="#F7FAFC" css-class="body-container">
+    <!-- Wrapper container for styling -->
+    <mj-wrapper css-class="email-wrapper" background-color="#FFFFFF" border-radius="16px" padding="0">
+      <!-- Header Section -->
+      <mj-section css-class="header-section" background-color="{{header_color}}" padding="40px">
+        <mj-column>
+          <mj-text css-class="status-badge" align="center">
+            {{badge_text}}
+          </mj-text>
+          <mj-text css-class="logo-text" align="center">
+            ⚡{{app_name}}
+          </mj-text>
+          <mj-text css-class="header-emoji" align="center">
+            {{header_emoji}}
+          </mj-text>
+        </mj-column>
+      </mj-section>
     
     <!-- Content Section -->
     <mj-section background-color="#FFFFFF" padding="40px">
@@ -190,14 +203,15 @@
     </mj-section>
     {{/if}}
     
-    <!-- Footer Section -->
-    <mj-section css-class="footer-section" background-color="#FFFFFF" padding="32px 40px 40px">
-      <mj-column>
-        <mj-text css-class="signature" align="center">
-          {{signature_text}}<br>
-          The {{app_name}} Team ⚡
-        </mj-text>
-      </mj-column>
-    </mj-section>
+      <!-- Footer Section -->
+      <mj-section css-class="footer-section" background-color="#FFFFFF" padding="32px 40px 40px">
+        <mj-column>
+          <mj-text css-class="signature" align="center">
+            {{signature_text}}<br>
+            The {{app_name}} Team ⚡
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
   </mj-body>
 </mjml>
