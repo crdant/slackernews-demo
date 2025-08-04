@@ -65,7 +65,6 @@ jobs:
             
             # Check if it's already a data URL or empty
             if [[ "$value" == "data:"* ]] || [[ "$value" == '""' ]] || [[ "$value" == "null" ]]; then
-              echo "Skipping $field - already a data URL or empty"
               return
             fi
             
@@ -73,8 +72,6 @@ jobs:
             
             # Check if it's an HTTP/HTTPS URL
             if [[ "$value" == "http"* ]]; then
-              echo "Converting $field URL to data URL: $value"
-              
               # Download the file
               source_file=$(mktemp)
               if ! curl -L -s -o "$source_file" "$value"; then
@@ -84,14 +81,10 @@ jobs:
               fi
             elif [[ -f "branding/enterprise-portal/$value" ]]; then
               # It's a local file path relative to the branding.yaml location
-              echo "Converting $field local file to data URL: $value"
               source_file="branding/enterprise-portal/$value"
             elif [[ -f "$value" ]]; then
-              # It's an absolute path or relative to root
-              echo "Converting $field local file to data URL: $value"
               source_file="$value"
             else
-              echo "Skipping $field - not a valid URL or file path: $value"
               return
             fi
             
@@ -106,8 +99,6 @@ jobs:
               
               # Update the YAML file
               yq eval ".branding.$field = \"$data_url\"" -i branding/enterprise-portal-temp.yaml
-              
-              echo "Successfully converted $field"
               
               # Clean up downloaded file (but not local files)
               if [[ "$value" == "http"* ]]; then
