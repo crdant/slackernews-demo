@@ -20,8 +20,7 @@
   "button_text": "Access Your Portal 🚀",
   "action_url": "{{login_url}}",
   
-  "signature_text": :w
-  "",
+  "signature_text": "",
   "app_name": "{{app_name}}",
   "customer_name": "{{customer_name}}",
   "login_url": "{{login_url}}"
