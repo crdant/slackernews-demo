@@ -3,11 +3,14 @@
 
 documentation:
   # Installation documentation URLs
-  helmInstallURL: "https://docs.slackernews.io/helm/"
-  embeddedClusterInstallURL: "https://docs.slackernews.io/vm/"
+  helm_install_url: "https://docs.slackernews.io/helm/"
+  values_override_url: ""
+  embedded_cluster_install_url: "https://docs.slackernews.io/vm/"
+  kurl_install_url: ""
+  kots_install_url: ""
   
-  # Pre-install instructions (supports local markdown files or inline content)
-  helmPreInstall: "helm-pre-install.md"
-  helmPostInstall: "helm-post-install.md"
-  embeddedClusterPreInstall: "embedded-cluster-pre-install.md"
-  embeddedClusterPostInstall: "embedded-cluster-post-install.md"
+  # Pre/post-install instructions (supports local markdown files or inline content)
+  helm_pre_install: "helm-pre-install.md"
+  helm_post_install: "helm-post-install.md"
+  embedded_cluster_pre_install: "embedded-cluster-pre-install.md"
+  embedded_cluster_post_install: "embedded-cluster-post-install.md"

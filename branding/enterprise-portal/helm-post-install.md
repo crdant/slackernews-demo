@@ -1,29 +1,34 @@
-# Post-Installation Steps
+# Telemetry
 
-Congratulations! SlackerNews has been successfully installed. Here are the next steps to get your instance up and running:
+Telemetry data is shared from your SlackerNews instance to our team regularly.
 
-## 1. Verify Installation
+We use the data for the following purposes:
 
-Check that all pods are running:
+1. To identify security and reliability issues.
+2. To analyze and fix software problems.
+3. To help improve the quality of our software and related services.
+4. To make design decisions for future releases.
 
-```bash
-kubectl get pods -n slackernews
-```
+Telemetry data is encrypted in transit, does not include personally identifiable information or message contents, and details of how the information is used and processed is available in our Privacy Policy.
 
-## 2. Access Your Instance
+## What we collect
 
-Your SlackerNews instance should be available at the domain you configured during installation.
+The following data & metrics are collected once every 24 hours:
 
-## 3. Complete Slack Integration
-
-1. Navigate to your Slack workspace
-2. Configure the SlackerNews app with your installation URL
-3. Test the integration by sharing a link in a Slack channel
-
-## 4. Configure Users
-
-Set up user access and permissions through the SlackerNews admin interface.
-
-## Need Help?
-
-If you encounter any issues, please check our [documentation](https://docs.slackernews.io) or [contact support](mailto:support@slackernews.io).
+1. Versions of SlackerNews & bundled services
+2. Versions and type of server operating system and/or Kubernetes clustser
+3. Provided license ID
+4. The generated instance ID of the deployment
+5. Database type & version
+6. Number of users (int)
+7. Daily active users (int)
+8. Accumulated daily point total (int)
+9.  Count of the links discovered per day (int)
+10. Count of the unique domains referenced (int)
+11. The highest point score per day (int)
+12. Total points to date (int)
+13. Preflight check status (pass/warn/fail)
+14. Number of nodes installed on (if embedded cluster installation) (int)
+15. Service health status
+16. The IP address of the request (indicates which cloud provider is used)
+   

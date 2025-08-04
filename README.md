@@ -175,14 +175,17 @@ You can also include pre- and post-install documentation using a separate `docum
 ```yaml
 documentation:
   # Installation URLs
-  helmInstallURL: "https://docs.example.com/helm/"
-  embeddedClusterInstallURL: "https://docs.example.com/vm/"
+  helm_install_url: "https://docs.example.com/helm/"
+  values_override_url: ""
+  embedded_cluster_install_url: "https://docs.example.com/vm/"
+  kurl_install_url: ""
+  kots_install_url: ""
   
   # Pre/post-install instructions (markdown files or URLs)
-  helmPreInstall: "helm-pre-install.md"
-  helmPostInstall: "helm-post-install.md"
-  embeddedClusterPreInstall: "embedded-cluster-pre-install.md"
-  embeddedClusterPostInstall: "embedded-cluster-post-install.md"
+  helm_pre_install: "helm-pre-install.md"
+  helm_post_install: "helm-post-install.md"
+  embedded_cluster_pre_install: "embedded-cluster-pre-install.md"
+  embedded_cluster_post_install: "embedded-cluster-post-install.md"
 ```
 
 The workflow automatically reads markdown files and includes their content in the branding configuration, making documentation easy to edit and maintain.

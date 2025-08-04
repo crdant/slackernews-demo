@@ -142,12 +142,15 @@ jobs:
             }
             
             # Process all documentation fields
-            process_doc_field "helmInstallURL"
-            process_doc_field "embeddedClusterInstallURL"
-            process_doc_field "helmPreInstall"
-            process_doc_field "helmPostInstall"
-            process_doc_field "embeddedClusterPreInstall"
-            process_doc_field "embeddedClusterPostInstall"
+            process_doc_field "helm_install_url"
+            process_doc_field "values_override_url"
+            process_doc_field "embedded_cluster_install_url"
+            process_doc_field "kurl_install_url"
+            process_doc_field "kots_install_url"
+            process_doc_field "helm_pre_install"
+            process_doc_field "helm_post_install"
+            process_doc_field "embedded_cluster_pre_install"
+            process_doc_field "embedded_cluster_post_install"
           fi
           
           # Convert the processed YAML to JSON format expected by API
