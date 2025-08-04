@@ -111,10 +111,18 @@ jobs:
             fi
           }
           
+          # Read current logo and favicon values
+          logo_value=$(yq eval '.branding.logo' branding/enterprise-portal/branding.yaml)
+          favicon_value=$(yq eval '.branding.favicon' branding/enterprise-portal/branding.yaml)
+          
+          # Convert images to data URLs
+          logo_data_url=$(convert_image_to_data_url "logo" "$logo_value")
+          favicon_data_url=$(convert_image_to_data_url "favicon" "$favicon_value")
+          
           # Process branding with image conversions using pipes
           yq eval '.branding' branding/enterprise-portal/branding.yaml | \
-            jq --arg logo "$(convert_image_to_data_url "logo" "$(yq eval '.branding.logo' branding/enterprise-portal/branding.yaml)")" \
-               --arg favicon "$(convert_image_to_data_url "favicon" "$(yq eval '.branding.favicon' branding/enterprise-portal/branding.yaml)")" \
+            jq --arg logo "$logo_data_url" \
+               --arg favicon "$favicon_data_url" \
                '.logo = $logo | .favicon = $favicon' | \
             jq '{"branding": (. | @json | @base64)}' > branding/enterprise-portal-processed.json
 
