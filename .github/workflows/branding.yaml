@@ -154,9 +154,9 @@ jobs:
               local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
               
               if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
-                echo "null"
+                echo ""
               else
-                echo "\"$value\""
+                echo "$value"
               fi
             }
             
@@ -167,17 +167,17 @@ jobs:
               
               # Skip if field doesn't exist or is empty
               if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
-                echo "null"
+                echo ""
                 return
               fi
               
               # Check if it's a file reference
               if [[ -f "branding/enterprise-portal/$value" ]]; then
-                echo "Reading markdown content for $field from $value"
-                cat "branding/enterprise-portal/$value" | jq -Rs .
+                echo "Reading markdown content for $field from $value" >&2
+                cat "branding/enterprise-portal/$value"
               else
                 # Treat as inline content
-                echo "$value" | jq -Rs .
+                echo "$value"
               fi
             }
             
