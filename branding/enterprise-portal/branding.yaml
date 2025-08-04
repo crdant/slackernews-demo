@@ -1,0 +1,27 @@
+# Enterprise Portal Branding Configuration
+# This file manages the branding settings for the SlackerNews enterprise portal
+
+branding:
+  # Basic portal information
+  url: "https://enterprise.replicated.com/slackernews-mackerel"
+  title: "SlackerNews"
+  overview: "Hacker News, but for internal teams. Automatically, populated by your Slack's links shared, replies and reactions. Fully private. Self-hosted. Open source."
+  
+  # Support and contact information
+  supportPortalLink: "https://github.com/slackernews/slackernews/issues"
+  contact: "support@slackernews.io"
+  
+  # Visual branding
+  logo: logo.png
+  favicon: favicon.ico
+  
+  # Theming options
+  background: "custom"
+  backgroundImage: ""
+  customColor1: "#F98228"
+  customColor2: "#fcdd4d"
+  primaryColor: "#F98228"
+  secondaryColor: "#000000"
+  
+  # Authentication settings
+  authType: "magic"

@@ -50,10 +50,85 @@ jobs:
       - name: Checkout branding
         uses: actions/checkout@v4
       
+      - name: Setup yq
+        uses: mikefarah/yq@master
+      
+      - name: Process images and convert YAML branding to JSON
+        run: |
+          # Create a temporary file to work with
+          cp branding/enterprise-portal/branding.yaml branding/enterprise-portal-temp.yaml
+          
+          # Function to convert URL or file path to data URL
+          convert_to_data_url() {
+            local field=$1
+            local value=$(yq eval ".branding.$field" branding/enterprise-portal-temp.yaml)
+            
+            # Check if it's already a data URL or empty
+            if [[ "$value" == "data:"* ]] || [[ "$value" == '""' ]] || [[ "$value" == "null" ]]; then
+              echo "Skipping $field - already a data URL or empty"
+              return
+            fi
+            
+            local source_file=""
+            
+            # Check if it's an HTTP/HTTPS URL
+            if [[ "$value" == "http"* ]]; then
+              echo "Converting $field URL to data URL: $value"
+              
+              # Download the file
+              source_file=$(mktemp)
+              if ! curl -L -s -o "$source_file" "$value"; then
+                echo "Failed to download $field from $value"
+                rm -f "$source_file"
+                exit 1
+              fi
+            elif [[ -f "$value" ]]; then
+              # It's a local file path
+              echo "Converting $field local file to data URL: $value"
+              source_file="$value"
+            else
+              echo "Skipping $field - not a valid URL or file path: $value"
+              return
+            fi
+            
+            # Process the file (whether downloaded or local)
+            if [[ -f "$source_file" ]]; then
+              # Detect content type
+              content_type=$(file --mime-type -b "$source_file")
+              
+              # Convert to base64 and create data URL
+              base64_data=$(base64 -w 0 "$source_file")
+              data_url="data:$content_type;base64,$base64_data"
+              
+              # Update the YAML file
+              yq eval ".branding.$field = \"$data_url\"" -i branding/enterprise-portal-temp.yaml
+              
+              echo "Successfully converted $field"
+              
+              # Clean up downloaded file (but not local files)
+              if [[ "$value" == "http"* ]]; then
+                rm -f "$source_file"
+              fi
+            else
+              echo "File not found for $field: $source_file"
+              exit 1
+            fi
+          }
+          
+          # Convert logo and favicon if they are URLs or local files
+          convert_to_data_url "logo"
+          convert_to_data_url "favicon"
+          
+          # Convert the processed YAML to JSON format expected by API
+          yq eval '.branding | {"branding": (. | @base64)}' branding/enterprise-portal-temp.yaml > branding/enterprise-portal-processed.json
+          
+          # Clean up temp file
+          rm -f branding/enterprise-portal-temp.yaml
+
       - name: Setup the Enterprise Portal branding
         run: |
           replicated api put /v3/app/${APP_ID}/enterprise-portal/branding \
-            --body "$(cat branding/enterprise-portal.json)"
+            --body "$(cat branding/enterprise-portal-processed.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
           REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
