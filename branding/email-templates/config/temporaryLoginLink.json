@@ -14,10 +14,10 @@
   "header_emoji": "🔓",
   "main_title": "You're Ready to Log In!",
   
-  "content_icon": "{{verification_code}}",
-  "highlight_title": "Sign in to your {{app_name}} account",
-  "highlight_description": "You can now log in with this email address at:",
-  "button_text": "Access Your Portal 🚀",
+  "content_icon": "Sign into your {{app_name}} account",
+  "highlight_title": "{{verification_code}}",
+  "highlight_description": "You can now log in with this code",
+  "button_text": "Access Directly 🚀",
   "action_url": "{{login_url}}",
   
   "signature_text": "",
