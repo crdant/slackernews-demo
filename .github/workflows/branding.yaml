@@ -171,19 +171,28 @@ jobs:
             }
             
             # Build documentation JSON directly
-            cat > branding/enterprise-portal-docs.json << EOF
-          {
-            "helmInstallUrl": $(process_url_field "helm_install_url"),
-            "valuesOverrideUrl": $(process_url_field "values_override_url"),
-            "embeddedClusterInstallUrl": $(process_url_field "embedded_cluster_install_url"),
-            "kurlInstallUrl": $(process_url_field "kurl_install_url"),
-            "kotsInstallUrl": $(process_url_field "kots_install_url"),
-            "helmPreInstall": $(process_content_field "helm_pre_install"),
-            "helmPostInstall": $(process_content_field "helm_post_install"),
-            "embeddedClusterPreInstall": $(process_content_field "embedded_cluster_pre_install"),
-            "embeddedClusterPostInstall": $(process_content_field "embedded_cluster_post_install")
-          }
-            EOF
+            jq -n \
+                --arg helmInstallUrl "$(process_url_field "helm_install_url")" \
+                --arg valuesOverrideUrl "$(process_url_field "values_override_url")" \
+                --arg embeddedClusterInstallUrl "$(process_url_field "embedded_cluster_install_url")" \
+                --arg kurlInstallUrl "$(process_url_field "kurl_install_url")" \
+                --arg kotsInstallUrl "$(process_url_field "kots_install_url")" \
+                --arg helmPreInstall "$(process_content_field "helm_pre_install")" \
+                --arg helmPostInstall "$(process_content_field "helm_post_install")" \
+                --arg embeddedClusterPreInstall "$(process_content_field "embedded_cluster_pre_install")" \
+                --arg embeddedClusterPostInstall "$(process_content_field "embedded_cluster_post_install")" \
+                '{
+                  helmInstallUrl: $helmInstallUrl,
+                  valuesOverrideUrl: $valuesOverrideUrl,
+                  embeddedClusterInstallUrl: $embeddedClusterInstallUrl,
+                  kurlInstallUrl: $kurlInstallUrl,
+                  kotsInstallUrl: $kotsInstallUrl,
+                  helmPreInstall: $helmPreInstall,
+                  helmPostInstall: $helmPostInstall,
+                  embeddedClusterPreInstall: $embeddedClusterPreInstall,
+                  embeddedClusterPostInstall: $embeddedClusterPostInstall
+                }' \
+              > branding/enterprise-portal-docs.json  
           fi
           
           # Clean up temp file
