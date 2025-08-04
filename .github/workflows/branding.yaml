@@ -156,19 +156,17 @@ jobs:
           
           # If documentation exists, create separate documentation payload
           if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
-            # Create documentation-specific payload with only doc fields from temp YAML
+            # Create documentation-specific payload with only doc fields from temp YAML (flat structure)
             yq eval '{
-              "documentation": {
-                "helmInstallUrl": .branding.helm_install_url,
-                "valuesOverrideUrl": .branding.values_override_url,
-                "embeddedClusterInstallUrl": .branding.embedded_cluster_install_url,
-                "kurlInstallUrl": .branding.kurl_install_url,
-                "kotsInstallUrl": .branding.kots_install_url,
-                "helmPreInstall": .branding.helm_pre_install,
-                "helmPostInstall": .branding.helm_post_install,
-                "embeddedClusterPreInstall": .branding.embedded_cluster_pre_install,
-                "embeddedClusterPostInstall": .branding.embedded_cluster_post_install
-              }
+              "helmInstallUrl": .branding.helm_install_url,
+              "valuesOverrideUrl": .branding.values_override_url,
+              "embeddedClusterInstallUrl": .branding.embedded_cluster_install_url,
+              "kurlInstallUrl": .branding.kurl_install_url,
+              "kotsInstallUrl": .branding.kots_install_url,
+              "helmPreInstall": .branding.helm_pre_install,
+              "helmPostInstall": .branding.helm_post_install,
+              "embeddedClusterPreInstall": .branding.embedded_cluster_pre_install,
+              "embeddedClusterPostInstall": .branding.embedded_cluster_post_install
             }' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-docs.json
             
             # Remove documentation fields from branding payload
