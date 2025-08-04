@@ -55,29 +55,30 @@ jobs:
       
       - name: Prepare branding
         run: |
-          # Create a temporary file to work with
-          cp branding/enterprise-portal/branding.yaml branding/enterprise-portal-temp.yaml
-          
-          # Function to convert URL or file path to data URL
-          convert_to_data_url() {
+          # Function to convert image field to data URL
+          convert_image_to_data_url() {
             local field=$1
-            local value=$(yq eval ".branding.$field" branding/enterprise-portal-temp.yaml)
+            local value=$2
             
             # Check if it's already a data URL or empty
             if [[ "$value" == "data:"* ]] || [[ "$value" == '""' ]] || [[ "$value" == "null" ]]; then
+              echo "$value"
               return
             fi
             
             local source_file=""
+            local cleanup_file=""
             
             # Check if it's an HTTP/HTTPS URL
             if [[ "$value" == "http"* ]]; then
               # Download the file
               source_file=$(mktemp)
+              cleanup_file="$source_file"
               if ! curl -L -s -o "$source_file" "$value"; then
-                echo "Failed to download $field from $value"
+                echo "Failed to download $field from $value" >&2
                 rm -f "$source_file"
-                exit 1
+                echo "$value"  # Return original value on failure
+                return
               fi
             elif [[ -f "branding/enterprise-portal/$value" ]]; then
               # It's a local file path relative to the branding.yaml location
@@ -85,6 +86,7 @@ jobs:
             elif [[ -f "$value" ]]; then
               source_file="$value"
             else
+              echo "$value"  # Return original value if file not found
               return
             fi
             
@@ -97,25 +99,24 @@ jobs:
               base64_data=$(base64 -w 0 "$source_file")
               data_url="data:$content_type;base64,$base64_data"
               
-              # Update the YAML file
-              yq eval ".branding.$field = \"$data_url\"" -i branding/enterprise-portal-temp.yaml
-              
               # Clean up downloaded file (but not local files)
-              if [[ "$value" == "http"* ]]; then
-                rm -f "$source_file"
+              if [[ -n "$cleanup_file" ]]; then
+                rm -f "$cleanup_file"
               fi
+              
+              echo "$data_url"
             else
-              echo "File not found for $field: $source_file"
-              exit 1
+              echo "File not found for $field: $source_file" >&2
+              echo "$value"  # Return original value on failure
             fi
           }
           
-          # Convert logo and favicon if they are URLs or local files
-          convert_to_data_url "logo"
-          convert_to_data_url "favicon"
-          
-          # Convert the branding YAML to JSON format expected by API
-          yq eval '{"branding": (.branding | @json | @base64)}' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-processed.json
+          # Process branding with image conversions using pipes
+          yq eval '.branding' branding/enterprise-portal/branding.yaml | \
+            jq --arg logo "$(convert_image_to_data_url "logo" "$(yq eval '.branding.logo' branding/enterprise-portal/branding.yaml)")" \
+               --arg favicon "$(convert_image_to_data_url "favicon" "$(yq eval '.branding.favicon' branding/enterprise-portal/branding.yaml)")" \
+               '.logo = $logo | .favicon = $favicon' | \
+            jq '{"branding": (. | @json | @base64)}' > branding/enterprise-portal-processed.json
 
       - name: Setup the Enterprise Portal branding
         run: |
@@ -206,8 +207,6 @@ jobs:
               > branding/enterprise-portal-docs.json  
           fi
           
-          # Clean up temp file
-          rm -f branding/enterprise-portal-temp.yaml
 
       - name: Setup the Enterprise Portal documentation
         if: hashFiles('branding/enterprise-portal/documentation.yaml') != ''
