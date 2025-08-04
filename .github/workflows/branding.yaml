@@ -131,7 +131,7 @@ jobs:
     needs: 
       - prepare
     steps:
-       - name: Prepare documentation
+      - name: Prepare documentation
         run: |
           # Process documentation separately if it exists
           if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
@@ -172,18 +172,18 @@ jobs:
             
             # Build documentation JSON directly
             cat > branding/enterprise-portal-docs.json << EOF
-{
-  "helmInstallUrl": $(process_url_field "helm_install_url"),
-  "valuesOverrideUrl": $(process_url_field "values_override_url"),
-  "embeddedClusterInstallUrl": $(process_url_field "embedded_cluster_install_url"),
-  "kurlInstallUrl": $(process_url_field "kurl_install_url"),
-  "kotsInstallUrl": $(process_url_field "kots_install_url"),
-  "helmPreInstall": $(process_content_field "helm_pre_install"),
-  "helmPostInstall": $(process_content_field "helm_post_install"),
-  "embeddedClusterPreInstall": $(process_content_field "embedded_cluster_pre_install"),
-  "embeddedClusterPostInstall": $(process_content_field "embedded_cluster_post_install")
-}
-EOF
+            {
+              "helmInstallUrl": $(process_url_field "helm_install_url"),
+              "valuesOverrideUrl": $(process_url_field "values_override_url"),
+              "embeddedClusterInstallUrl": $(process_url_field "embedded_cluster_install_url"),
+              "kurlInstallUrl": $(process_url_field "kurl_install_url"),
+              "kotsInstallUrl": $(process_url_field "kots_install_url"),
+              "helmPreInstall": $(process_content_field "helm_pre_install"),
+              "helmPostInstall": $(process_content_field "helm_post_install"),
+              "embeddedClusterPreInstall": $(process_content_field "embedded_cluster_pre_install"),
+              "embeddedClusterPostInstall": $(process_content_field "embedded_cluster_post_install")
+            }
+            EOF
           fi
           
           # Clean up temp file
