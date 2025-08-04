@@ -53,7 +53,7 @@ jobs:
       - name: Setup yq
         uses: mikefarah/yq@master
       
-      - name: Process images and convert YAML branding to JSON
+      - name: Prepare branding
         run: |
           # Create a temporary file to work with
           cp branding/enterprise-portal/branding.yaml branding/enterprise-portal-temp.yaml
@@ -116,53 +116,6 @@ jobs:
           
           # Convert the branding YAML to JSON format expected by API
           yq eval '{"branding": (.branding | @json | @base64)}' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-processed.json
-          
-          # Process documentation separately if it exists
-          if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
-            echo "Processing documentation configuration..."
-            
-            # Function to process documentation field and convert to proper JSON format
-            process_doc_field() {
-              local field=$1
-              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
-              
-              # Skip if field doesn't exist or is empty
-              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
-                echo "null"
-                return
-              fi
-              
-              # Check if it's a file reference (not a URL)
-              if [[ ! "$value" == "http"* ]] && [[ -f "branding/enterprise-portal/$value" ]]; then
-                echo "Reading markdown content for $field from $value"
-                # Read and escape the markdown content for JSON
-                cat "branding/enterprise-portal/$value" | jq -Rs .
-              elif [[ "$value" == "http"* ]]; then
-                # It's a URL, return it as JSON string
-                echo "\"$value\""
-              else
-                echo "null"
-              fi
-            }
-            
-            # Build documentation JSON directly
-            cat > branding/enterprise-portal-docs.json << EOF
-{
-  "helmInstallUrl": $(process_doc_field "helm_install_url"),
-  "valuesOverrideUrl": $(process_doc_field "values_override_url"),
-  "embeddedClusterInstallUrl": $(process_doc_field "embedded_cluster_install_url"),
-  "kurlInstallUrl": $(process_doc_field "kurl_install_url"),
-  "kotsInstallUrl": $(process_doc_field "kots_install_url"),
-  "helmPreInstall": $(process_doc_field "helm_pre_install"),
-  "helmPostInstall": $(process_doc_field "helm_post_install"),
-  "embeddedClusterPreInstall": $(process_doc_field "embedded_cluster_pre_install"),
-  "embeddedClusterPostInstall": $(process_doc_field "embedded_cluster_post_install")
-}
-EOF
-          fi
-          
-          # Clean up temp file
-          rm -f branding/enterprise-portal-temp.yaml
 
       - name: Setup the Enterprise Portal branding
         run: |
@@ -172,6 +125,69 @@ EOF
           APP_ID: ${{ needs.prepare.outputs.app-id }}
           REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
           REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
+
+  documentation:
+    runs-on: ubuntu-22.04
+    needs: 
+      - prepare
+    steps:
+       - name: Prepare documentation
+        run: |
+          # Process documentation separately if it exists
+          if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
+            echo "Processing documentation configuration..."
+            
+            # Function to process URL fields (should remain as URLs)
+            process_url_field() {
+              local field=$1
+              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
+              
+              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
+                echo "null"
+              else
+                echo "\"$value\""
+              fi
+            }
+            
+            # Function to process content fields (can be file references or inline content)
+            process_content_field() {
+              local field=$1
+              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
+              
+              # Skip if field doesn't exist or is empty
+              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
+                echo "null"
+                return
+              fi
+              
+              # Check if it's a file reference
+              if [[ -f "branding/enterprise-portal/$value" ]]; then
+                echo "Reading markdown content for $field from $value"
+                cat "branding/enterprise-portal/$value" | jq -Rs .
+              else
+                # Treat as inline content
+                echo "$value" | jq -Rs .
+              fi
+            }
+            
+            # Build documentation JSON directly
+            cat > branding/enterprise-portal-docs.json << EOF
+{
+  "helmInstallUrl": $(process_url_field "helm_install_url"),
+  "valuesOverrideUrl": $(process_url_field "values_override_url"),
+  "embeddedClusterInstallUrl": $(process_url_field "embedded_cluster_install_url"),
+  "kurlInstallUrl": $(process_url_field "kurl_install_url"),
+  "kotsInstallUrl": $(process_url_field "kots_install_url"),
+  "helmPreInstall": $(process_content_field "helm_pre_install"),
+  "helmPostInstall": $(process_content_field "helm_post_install"),
+  "embeddedClusterPreInstall": $(process_content_field "embedded_cluster_pre_install"),
+  "embeddedClusterPostInstall": $(process_content_field "embedded_cluster_post_install")
+}
+EOF
+          fi
+          
+          # Clean up temp file
+          rm -f branding/enterprise-portal-temp.yaml
 
       - name: Setup the Enterprise Portal documentation
         if: hashFiles('branding/enterprise-portal/documentation.yaml') != ''
