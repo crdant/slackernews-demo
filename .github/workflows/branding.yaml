@@ -114,6 +114,42 @@ jobs:
           convert_to_data_url "logo"
           convert_to_data_url "favicon"
           
+          # Process documentation if it exists
+          if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
+            echo "Processing documentation configuration..."
+            
+            # Function to read markdown file content and add to YAML
+            process_doc_field() {
+              local field=$1
+              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
+              
+              # Skip if field doesn't exist or is empty
+              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
+                return
+              fi
+              
+              # Check if it's a file reference (not a URL)
+              if [[ ! "$value" == "http"* ]] && [[ -f "branding/enterprise-portal/$value" ]]; then
+                echo "Reading markdown content for $field from $value"
+                # Read the markdown file and escape it for JSON
+                markdown_content=$(cat "branding/enterprise-portal/$value")
+                # Add the content to our temp YAML
+                yq eval ".branding.$field = \"$markdown_content\"" -i branding/enterprise-portal-temp.yaml
+              elif [[ "$value" == "http"* ]]; then
+                # It's a URL, add it directly
+                yq eval ".branding.$field = \"$value\"" -i branding/enterprise-portal-temp.yaml
+              fi
+            }
+            
+            # Process all documentation fields
+            process_doc_field "helmInstallURL"
+            process_doc_field "embeddedClusterInstallURL"
+            process_doc_field "helmPreInstall"
+            process_doc_field "helmPostInstall"
+            process_doc_field "embeddedClusterPreInstall"
+            process_doc_field "embeddedClusterPostInstall"
+          fi
+          
           # Convert the processed YAML to JSON format expected by API
           yq eval '{"branding": (.branding | @json | @base64)}' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-processed.json
           

@@ -1,0 +1,13 @@
+# Enterprise Portal Documentation Configuration
+# This file manages the pre- and post-install documentation shown in the enterprise portal
+
+documentation:
+  # Installation documentation URLs
+  helmInstallURL: "https://docs.slackernews.io/helm/"
+  embeddedClusterInstallURL: "https://docs.slackernews.io/vm/"
+  
+  # Pre-install instructions (supports local markdown files or inline content)
+  helmPreInstall: "helm-pre-install.md"
+  helmPostInstall: "helm-post-install.md"
+  embeddedClusterPreInstall: "embedded-cluster-pre-install.md"
+  embeddedClusterPostInstall: "embedded-cluster-post-install.md"
