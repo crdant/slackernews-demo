@@ -131,8 +131,16 @@ jobs:
     needs: 
       - prepare
     steps:
+      - name: Install Replicated CLI
+        run: |
+          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
+            | sudo bash
+
       - name: Checkout branding
         uses: actions/checkout@v4
+      
+      - name: Setup yq
+        uses: mikefarah/yq@master
         
       - name: Prepare documentation
         run: |
