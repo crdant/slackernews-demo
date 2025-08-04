@@ -168,6 +168,28 @@ branding:
   authType: "magic"
 ```
 
+#### Documentation Support
+
+You can also include pre- and post-install documentation using a separate `documentation.yaml` file:
+
+```yaml
+documentation:
+  # Installation URLs
+  helm_install_url: "https://docs.example.com/helm/"
+  values_override_url: ""
+  embedded_cluster_install_url: "https://docs.example.com/vm/"
+  kurl_install_url: ""
+  kots_install_url: ""
+  
+  # Pre/post-install instructions (markdown files or URLs)
+  helm_pre_install: "helm-pre-install.md"
+  helm_post_install: "helm-post-install.md"
+  embedded_cluster_pre_install: "embedded-cluster-pre-install.md"
+  embedded_cluster_post_install: "embedded-cluster-post-install.md"
+```
+
+The workflow automatically reads markdown files and includes their content in the branding configuration, making documentation easy to edit and maintain.
+
 ### Email Templates
 
 Email templates are defined in MJML format and compiled to HTML. The system

@@ -53,7 +53,7 @@ jobs:
       - name: Setup yq
         uses: mikefarah/yq@master
       
-      - name: Process images and convert YAML branding to JSON
+      - name: Prepare branding
         run: |
           # Create a temporary file to work with
           cp branding/enterprise-portal/branding.yaml branding/enterprise-portal-temp.yaml
@@ -114,16 +114,106 @@ jobs:
           convert_to_data_url "logo"
           convert_to_data_url "favicon"
           
-          # Convert the processed YAML to JSON format expected by API
+          # Convert the branding YAML to JSON format expected by API
           yq eval '{"branding": (.branding | @json | @base64)}' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-processed.json
-          
-          # Clean up temp file
-          rm -f branding/enterprise-portal-temp.yaml
 
       - name: Setup the Enterprise Portal branding
         run: |
           replicated api put /v3/app/${APP_ID}/enterprise-portal/branding \
             --body "$(cat branding/enterprise-portal-processed.json)"
+        env:
+          APP_ID: ${{ needs.prepare.outputs.app-id }}
+          REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
+          REPLICATED_API_ORIGIN: ${{ inputs.api-origin || 'https://api.replicated.com/vendor' }}
+
+  documentation:
+    runs-on: ubuntu-22.04
+    needs: 
+      - prepare
+    steps:
+      - name: Install Replicated CLI
+        run: |
+          curl -sSL https://raw.githubusercontent.com/replicatedhq/replicated/master/install.sh \
+            | sudo bash
+
+      - name: Checkout branding
+        uses: actions/checkout@v4
+      
+      - name: Setup yq
+        uses: mikefarah/yq@master
+        
+      - name: Prepare documentation
+        run: |
+          # Process documentation separately if it exists
+          if [[ -f "branding/enterprise-portal/documentation.yaml" ]]; then
+            echo "Processing documentation configuration..."
+            
+            # Function to process URL fields (should remain as URLs)
+            process_url_field() {
+              local field=$1
+              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
+              
+              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
+                echo ""
+              else
+                echo "$value"
+              fi
+            }
+            
+            # Function to process content fields (can be file references or inline content)
+            process_content_field() {
+              local field=$1
+              local value=$(yq eval ".documentation.$field" branding/enterprise-portal/documentation.yaml)
+              
+              # Skip if field doesn't exist or is empty
+              if [[ "$value" == "null" ]] || [[ "$value" == '""' ]]; then
+                echo ""
+                return
+              fi
+              
+              # Check if it's a file reference
+              if [[ -f "branding/enterprise-portal/$value" ]]; then
+                echo "Reading markdown content for $field from $value" >&2
+                cat "branding/enterprise-portal/$value"
+              else
+                # Treat as inline content
+                echo "$value"
+              fi
+            }
+            
+            # Build documentation JSON directly
+            jq -n \
+                --arg helmInstallUrl "$(process_url_field "helm_install_url")" \
+                --arg valuesOverrideUrl "$(process_url_field "values_override_url")" \
+                --arg embeddedClusterInstallUrl "$(process_url_field "embedded_cluster_install_url")" \
+                --arg kurlInstallUrl "$(process_url_field "kurl_install_url")" \
+                --arg kotsInstallUrl "$(process_url_field "kots_install_url")" \
+                --arg helmPreInstall "$(process_content_field "helm_pre_install")" \
+                --arg helmPostInstall "$(process_content_field "helm_post_install")" \
+                --arg embeddedClusterPreInstall "$(process_content_field "embedded_cluster_pre_install")" \
+                --arg embeddedClusterPostInstall "$(process_content_field "embedded_cluster_post_install")" \
+                '{
+                  helmInstallUrl: $helmInstallUrl,
+                  valuesOverrideUrl: $valuesOverrideUrl,
+                  embeddedClusterInstallUrl: $embeddedClusterInstallUrl,
+                  kurlInstallUrl: $kurlInstallUrl,
+                  kotsInstallUrl: $kotsInstallUrl,
+                  helmPreInstall: $helmPreInstall,
+                  helmPostInstall: $helmPostInstall,
+                  embeddedClusterPreInstall: $embeddedClusterPreInstall,
+                  embeddedClusterPostInstall: $embeddedClusterPostInstall
+                }' \
+              > branding/enterprise-portal-docs.json  
+          fi
+          
+          # Clean up temp file
+          rm -f branding/enterprise-portal-temp.yaml
+
+      - name: Setup the Enterprise Portal documentation
+        if: hashFiles('branding/enterprise-portal/documentation.yaml') != ''
+        run: |
+          replicated api put /v3/app/${APP_ID}/enterprise-portal/documentation \
+            --body "$(cat branding/enterprise-portal-docs.json)"
         env:
           APP_ID: ${{ needs.prepare.outputs.app-id }}
           REPLICATED_API_TOKEN: ${{ inputs.api-token || secrets.REPLICATED_API_TOKEN }}
