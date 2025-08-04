@@ -131,6 +131,9 @@ jobs:
     needs: 
       - prepare
     steps:
+      - name: Checkout branding
+        uses: actions/checkout@v4
+        
       - name: Prepare documentation
         run: |
           # Process documentation separately if it exists
