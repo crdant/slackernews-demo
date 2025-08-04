@@ -131,10 +131,8 @@ jobs:
               # Check if it's a file reference (not a URL)
               if [[ ! "$value" == "http"* ]] && [[ -f "branding/enterprise-portal/$value" ]]; then
                 echo "Reading markdown content for $field from $value"
-                # Read the markdown file and escape it for JSON
-                markdown_content=$(cat "branding/enterprise-portal/$value")
-                # Add the content to our temp YAML
-                yq eval ".branding.$field = \"$markdown_content\"" -i branding/enterprise-portal-temp.yaml
+                # Use yq to properly set the content from file
+                yq eval ".branding.$field = load_str(\"branding/enterprise-portal/$value\")" -i branding/enterprise-portal-temp.yaml
               elif [[ "$value" == "http"* ]]; then
                 # It's a URL, add it directly
                 yq eval ".branding.$field = \"$value\"" -i branding/enterprise-portal-temp.yaml
