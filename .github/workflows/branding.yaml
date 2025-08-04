@@ -124,7 +124,7 @@ jobs:
           convert_to_data_url "favicon"
           
           # Convert the processed YAML to JSON format expected by API
-          yq eval '.branding | {"branding": (. | @base64)}' branding/enterprise-portal-temp.yaml > branding/enterprise-portal-processed.json
+          yq eval '{"branding": (.branding | @json | @base64)}' branding/enterprise-portal-temp.yaml -o json > branding/enterprise-portal-processed.json
           
           # Clean up temp file
           rm -f branding/enterprise-portal-temp.yaml
