@@ -115,18 +115,12 @@ jobs:
           logo_value=$(yq eval '.branding.logo' branding/enterprise-portal/branding.yaml)
           favicon_value=$(yq eval '.branding.favicon' branding/enterprise-portal/branding.yaml)
           
-          echo "Logo value: $logo_value"
-          echo "Favicon value: $favicon_value"
-          
           # Convert images to data URLs
           logo_data_url=$(convert_image_to_data_url "logo" "$logo_value")
           favicon_data_url=$(convert_image_to_data_url "favicon" "$favicon_value")
           
-          echo "Logo data URL length: ${#logo_data_url}"
-          echo "Favicon data URL length: ${#favicon_data_url}"
-          
           # Process branding with image conversions using pipes
-          yq eval '.branding' branding/enterprise-portal/branding.yaml | \
+          yq eval -o json '.branding' branding/enterprise-portal/branding.yaml | \
             jq --arg logo "$logo_data_url" \
                --arg favicon "$favicon_data_url" \
                '.logo = $logo | .favicon = $favicon' | \
