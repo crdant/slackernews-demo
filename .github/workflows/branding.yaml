@@ -82,8 +82,12 @@ jobs:
                 rm -f "$source_file"
                 exit 1
               fi
+            elif [[ -f "branding/enterprise-portal/$value" ]]; then
+              # It's a local file path relative to the branding.yaml location
+              echo "Converting $field local file to data URL: $value"
+              source_file="branding/enterprise-portal/$value"
             elif [[ -f "$value" ]]; then
-              # It's a local file path
+              # It's an absolute path or relative to root
               echo "Converting $field local file to data URL: $value"
               source_file="$value"
             else

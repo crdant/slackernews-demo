@@ -46,8 +46,10 @@ Before using this repository, you'll need:
 │   ├── cluster.yaml           # Creates test Kubernetes clusters
 │   └── release.yaml           # Builds and releases new versions
 ├── branding/                  # Branding assets
+│   ├── enterprise-portal/     # Enterprise portal branding
+│   │   └── branding.yaml      # Portal branding configuration
 │   ├── email-templates/       # Email template source files
-│   └── enterprise-portal.json # Portal branding configuration
+│   └── enterprise-portal.json # Legacy portal config (deprecated)
 └── Makefile                   # Helper commands for running workflows
 ```
 
@@ -120,13 +122,51 @@ purposes.
 
 ### Enterprise Portal
 
-The portal branding is configured in `branding/enterprise-portal.json` and includes:
+The portal branding is configured in `branding/enterprise-portal/branding.yaml` using a human-readable YAML format. The configuration includes:
 
-- App name and description
-- Logo and favicon (base64 encoded)
-- Color scheme customization
-- Background settings
-- Support links
+- **Basic Information**: App name, description, and URL
+- **Visual Branding**: Logo and favicon (supports multiple formats)
+- **Color Scheme**: Primary/secondary colors and custom color palette
+- **Background**: Custom background settings
+- **Contact Details**: Support links and contact information
+- **Authentication**: Auth type configuration
+
+#### Logo and Favicon Support
+
+The branding system supports multiple formats for logo and favicon:
+
+- **HTTP/HTTPS URLs**: `https://example.com/logo.png` - Downloaded and converted automatically
+- **Local files**: `logo.png` or `assets/favicon.ico` - Read from repository and converted
+- **Data URLs**: `data:image/png;base64,iVBORw0K...` - Used directly (already embedded)
+
+The workflow automatically converts URLs and local files to base64 data URLs for optimal performance.
+
+#### Example Configuration
+
+```yaml
+branding:
+  # Basic portal information
+  url: "https://enterprise.replicated.com/your-app"
+  title: "Your App Name"
+  overview: "Your app description"
+  
+  # Visual branding (flexible format support)
+  logo: "https://example.com/logo.png"  # or logo.png or data:image/...
+  favicon: "favicon.ico"                # or https://... or data:image/...
+  
+  # Color customization
+  primaryColor: "#F98228"
+  secondaryColor: "#000000"
+  customColor1: "#F98228"
+  customColor2: "#fcdd4d"
+  
+  # Contact information
+  supportPortalLink: "https://github.com/your-org/your-app/issues"
+  contact: "support@example.com"
+  
+  # Authentication
+  authType: "magic"
+```
 
 ### Email Templates
 
