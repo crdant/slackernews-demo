@@ -7,48 +7,224 @@
       <mj-section background-color="#F7FAFC" padding="0" />
       <mj-column padding="0" />
     </mj-attributes>
-    
-    <!-- Include modular styles -->
     <mj-style inline="inline">
-      <mj-include path="./styles/variables.css" type="css" />
-      <mj-include path="./styles/layout.css" type="css" />
-      <mj-include path="./styles/components.css" type="css" />
+      :root {
+        --header-color: {{header_color}};
+        --accent-color: {{accent_color}};
+        --button-color: {{button_color}};
+        --badge-text: "{{badge_text}}";
+      }
+      
+      body {
+        background-color: #F7FAFC !important;
+        padding: 40px 0;
+        margin: 0;
+      }
+      
+      .email-wrapper {
+        background-color: #FFFFFF !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #E2E8F0 !important;
+        overflow: hidden !important;
+        margin: 0 auto !important;
+        max-width: 600px !important;
+        width: 100% !important;
+      }
+      
+      .body-container {
+        padding: 20px !important;
+      }
+      
+      .status-badge * {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-radius: 25px !important;
+        color: #FFFFFF !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        padding: 8px 20px !important;
+        margin: 0 auto 16px auto !important;
+        display: inline-block !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        text-align: center !important;
+      }
+      
+      .logo-text * {
+        color: #FFFFFF !important;
+        font-size: 32px !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+        text-decoration: none !important;
+      }
+      
+      .header-emoji * {
+        color: #FFFFFF !important;
+        font-size: 48px !important;
+        margin-top: 16px !important;
+      }
+      
+      .main-title * {
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: #2D3748 !important;
+        text-align: center !important;
+        margin-bottom: 32px !important;
+        line-height: 1.2 !important;
+      }
+      
+      .content-highlight {
+        border-radius: 12px !important;
+        border-left: 4px solid var(--accent-color) !important;
+      }
+      
+      .highlight-icon * {
+        font-size: 48px !important;
+        margin-bottom: 16px !important;
+        color: var(--accent-color) !important;
+      }
+      
+      .highlight-text * {
+        font-size: 18px !important;
+        color: #2D3748 !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+      }
+      
+      .highlight-description * {
+        color: #4A5568 !important;
+        margin-bottom: 20px !important;
+        font-size: 16px !important;
+      }
+      
+      .action-button table {
+        margin: 0 auto !important;
+      }
+      
+      .action-button td {
+        background-color: var(--button-color) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+      }
+      
+      .action-button a {
+        background-color: var(--button-color) !important;
+        color: #FFFFFF !important;
+        display: inline-block !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        line-height: 1.4 !important;
+        padding: 20px 40px !important;
+        text-align: center !important;
+        text-decoration: none !important;
+        border-radius: 12px !important;
+      }
+      
+      .action-button a:visited,
+      .action-button a:hover,
+      .action-button a:active {
+        background-color: var(--button-color) !important;
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+      }
+      
+      .footer-section {
+        text-align: center;
+        padding-top: 32px;
+        border-top: 1px solid #E2E8F0;
+        background-color: #FFFFFF;
+      }
+      
+      .signature {
+        font-size: 16px;
+        color: #4A5568 !important;
+        margin-bottom: 20px;
+      }
+      
+      @media only screen and (max-width: 640px) {
+        .email-wrapper {
+          margin: 20px 10px !important;
+        }
+        .header-section {
+          padding: 32px 20px !important;
+        }
+        .content-highlight {
+          padding: 24px 16px !important;
+        }
+        .action-button {
+          width: 90% !important;
+          max-width: none !important;
+        }
+      }
     </mj-style>
   </mj-head>
-  
   <mj-body background-color="#F7FAFC" css-class="body-container">
     <!-- Wrapper container for styling -->
     <mj-wrapper css-class="email-wrapper" background-color="#FFFFFF" border-radius="16px" padding="0">
-      
-      <!-- Header Component -->
-      <mj-include path="./components/header.mjml" />
-      
-      <!-- Main Content Section -->
-      <mj-section background-color="#FFFFFF" padding="40px">
+      <!-- Header Section -->
+      <mj-section css-class="header-section" background-color="{{header_color}}" padding="40px">
         <mj-column>
-          <mj-text css-class="main-title" align="center">
-            {{main_title}}
+          <mj-text css-class="status-badge" align="center">
+            {{badge_text}}
+          </mj-text>
+          <mj-text css-class="logo-text" align="center">
+            ⚡{{app_name}}
+          </mj-text>
+          <mj-text css-class="header-emoji" align="center">
+            {{header_emoji}}
           </mj-text>
         </mj-column>
       </mj-section>
-      
-      <!-- Content Highlight Component -->
-      <mj-include path="./components/content-highlight.mjml" />
-      
-      <!-- Additional Content (conditional) -->
-      {{#if additional_content}}
-      <mj-section background-color="#FFFFFF" padding="20px 40px 0px">
+    
+    <!-- Content Section -->
+    <mj-section background-color="#FFFFFF" padding="40px">
+      <mj-column>
+        <mj-text css-class="main-title" align="center">
+          {{main_title}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+    <!-- Content Highlight Box -->
+    <mj-section css-class="content-highlight" background-color="{{highlight_bg_color}}" padding="32px">
+      <mj-column>
+        <mj-text css-class="highlight-icon" align="center">
+          {{content_icon}}
+        </mj-text>
+        <mj-text css-class="highlight-text" align="center">
+          {{highlight_title}}
+        </mj-text>
+        <mj-text css-class="highlight-description" align="center">
+          {{highlight_description}}
+        </mj-text>
+        <mj-button css-class="action-button" href="{{action_url}}">
+          {{button_text}}
+        </mj-button>
+      </mj-column>
+    </mj-section>
+    
+    <!-- Additional Content -->
+    {{#if additional_content}}
+    <mj-section background-color="#FFFFFF" padding="20px 40px 0px">
+      <mj-column>
+        <mj-text align="center" color="#4A5568">
+          {{additional_content}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    {{/if}}
+    
+      <!-- Footer Section -->
+      <mj-section css-class="footer-section" background-color="#FFFFFF" padding="32px 40px 40px">
         <mj-column>
-          <mj-text align="center" color="#4A5568">
-            {{additional_content}}
+          <mj-text css-class="signature" align="center">
+            {{signature_text}}<br>
+            The {{app_name}} Team ⚡
           </mj-text>
         </mj-column>
       </mj-section>
-      {{/if}}
-      
-      <!-- Footer Component -->
-      <mj-include path="./components/footer.mjml" />
-      
     </mj-wrapper>
   </mj-body>
 </mjml>
