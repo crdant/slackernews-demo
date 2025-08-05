@@ -1,0 +1,39 @@
+/* Layout and Container Styles */
+
+body {
+  background-color: var(--bg-secondary) !important;
+  padding: var(--spacing-xl) 0;
+  margin: 0;
+}
+
+.email-wrapper {
+  background-color: var(--bg-primary) !important;
+  border-radius: var(--radius-large) !important;
+  box-shadow: var(--shadow-soft) !important;
+  border: 1px solid var(--border-color) !important;
+  overflow: hidden !important;
+  margin: 0 auto !important;
+  max-width: 600px !important;
+  width: 100% !important;
+}
+
+.body-container {
+  padding: var(--spacing-md) !important;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 640px) {
+  .email-wrapper {
+    margin: var(--spacing-md) 10px !important;
+  }
+  .header-section {
+    padding: var(--spacing-lg) var(--spacing-md) !important;
+  }
+  .content-highlight {
+    padding: 24px var(--spacing-sm) !important;
+  }
+  .action-button {
+    width: 90% !important;
+    max-width: none !important;
+  }
+}

@@ -1,0 +1,24 @@
+/* Brand Variables and Design Tokens */
+:root {
+  --header-color: {{header_color}};
+  --accent-color: {{accent_color}};
+  --button-color: {{button_color}};
+  --badge-text: "{{badge_text}}";
+  
+  /* Design system tokens */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F7FAFC;
+  --text-primary: #2D3748;
+  --text-secondary: #4A5568;
+  --border-color: #E2E8F0;
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --radius-large: 16px;
+  --radius-medium: 12px;
+  --radius-small: 25px;
+  --spacing-xl: 40px;
+  --spacing-lg: 32px;
+  --spacing-md: 20px;
+  --spacing-sm: 16px;
+  --spacing-xs: 8px;
+}
