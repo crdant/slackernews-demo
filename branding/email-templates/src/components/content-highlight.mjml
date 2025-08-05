@@ -1,0 +1,17 @@
+<!-- Content Highlight Box Component -->
+<mj-section css-class="content-highlight" background-color="{{highlight_bg_color}}" padding="32px">
+  <mj-column>
+    <mj-text css-class="highlight-icon" align="center">
+      {{content_icon}}
+    </mj-text>
+    <mj-text css-class="highlight-text" align="center">
+      {{highlight_title}}
+    </mj-text>
+    <mj-text css-class="highlight-description" align="center">
+      {{highlight_description}}
+    </mj-text>
+    <mj-button css-class="action-button" href="{{action_url}}">
+      {{button_text}}
+    </mj-button>
+  </mj-column>
+</mj-section>

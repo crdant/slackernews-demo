@@ -1,0 +1,4 @@
+<!-- Standalone Action Button Component -->
+<mj-button css-class="action-button" href="{{action_url}}">
+  {{button_text}}
+</mj-button>
