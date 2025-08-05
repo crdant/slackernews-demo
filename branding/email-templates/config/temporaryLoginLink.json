@@ -10,17 +10,17 @@
   "button_color": "#FF6B35",
   "highlight_bg_color": "#F0FFF4",
   
-  "badge_text": "Account Activated!",
-  "header_emoji": "🎉",
-  "main_title": "You're All Set!",
+  "badge_text": "Ready to Log In",
+  "header_emoji": "🔓",
+  "main_title": "You're Ready to Log In!",
   
-  "content_icon": "✅",
-  "highlight_title": "Successfully joined {{customer_name}}",
-  "highlight_description": "You can now log in with this email address at:",
-  "button_text": "Access Your Portal 🚀",
+  "content_icon": "{{verification_code}}",
+  "highlight_title": "Sign into your {{app_name}} account",
+  "highlight_description": "You can now log in with this code",
+  "button_text": "Access Directly 🚀",
   "action_url": "{{login_url}}",
   
-  "signature_text": "Welcome to the team!",
+  "signature_text": "",
   "app_name": "{{app_name}}",
   "customer_name": "{{customer_name}}",
   "login_url": "{{login_url}}"

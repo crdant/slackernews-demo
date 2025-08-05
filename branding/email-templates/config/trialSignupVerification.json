@@ -14,7 +14,7 @@
   "header_emoji": "📧",
   "main_title": "Verify Your Email",
   
-  "content_icon": "{{verification_code}}",
+  "content_icon": "✅",
   "highlight_title": "{{verification_code}}",
   "highlight_description": "Enter this code to verify your email and start your trial",
   "button_text": "Verify Email Instantly ✉️",
