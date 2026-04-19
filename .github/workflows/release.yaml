@@ -185,45 +185,19 @@ jobs:
           version: "3.9.0"
         id: install
 
-      - name: Update the values.yaml with the registry name
-        uses: jacobtomlinson/gha-find-replace@v2
+      - name: Update the values.yaml with proxy registry
+        uses: mikefarah/yq@master
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$REGISTRY'
-          replace: '${{ inputs.proxy }}'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$VERSION'
-          replace: '${{ inputs.version }}'
-          regex: false
-
-      - name: Update the values.yaml with the secure built image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$SECUREBUILD_PATH'
-          replace: 'proxy/${{ inputs.slug }}/cve0.io'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$SECUREBUILD_PATH'
-          replace: 'proxy/${{ inputs.slug }}/cve0.io'
-          regex: false
+          cmd: |
+            yq -i '
+              .replicated.image.registry = "${{ inputs.proxy }}" |
+              .images.slackernews.registry = "${{ inputs.proxy }}" |
+              .images.slackernews.repository = "proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web" |
+              .images.nginx.registry = "${{ inputs.proxy }}" |
+              .images.nginx.repository = "proxy/${{ inputs.slug }}/" + .images.nginx.repository |
+              .images.postgres.registry = "${{ inputs.proxy }}" |
+              .images.postgres.repository = "proxy/${{ inputs.slug }}/" + .images.postgres.repository
+            ' chart/slackernews/values.yaml
 
       - id: package-helm-chart
         run: |
