@@ -186,6 +186,7 @@ jobs:
               .replicated.image.registry = "${{ inputs.proxy }}" |
               .images.slackernews.registry = "${{ inputs.proxy }}" |
               .images.slackernews.repository = "proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web" |
+              .images.slackernews.tag = "${{ inputs.version }}" |
               .images.nginx.registry = "${{ inputs.proxy }}" |
               .images.nginx.repository = "proxy/${{ inputs.slug }}/" + .images.nginx.repository |
               .images.postgres.registry = "${{ inputs.proxy }}" |
