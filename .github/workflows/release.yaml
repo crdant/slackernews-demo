@@ -251,6 +251,6 @@ jobs:
           replicated-app: ${{ inputs.slug }}
           replicated-api-token: ${{ steps.prepare-api.outputs.api-token }}
           replicated-api-origin: ${{ steps.prepare-api.outputs.api-endpoint }}
-          yaml-dir: ./kots
+          yaml-dir: ./replicated
           promote-channel: "Unstable"
           version: ${{ inputs.version }}
