@@ -203,13 +203,13 @@ jobs:
             --version=${{ inputs.version }} \
             ./slackernews
 
-      - name: Copy the helm chart to the kots directory
+      - name: Copy the helm chart to the replicated directory
         run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$REGISTRY'
           replace: '${{ inputs.proxy }}'
           regex: false
@@ -217,7 +217,7 @@ jobs:
       - name: Update chart version in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ inputs.version }}'
           regex: false
@@ -225,7 +225,7 @@ jobs:
       - name: Update chart version in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$NAMESPACE'
           replace: '${{ inputs.namespace }}'
           regex: false
