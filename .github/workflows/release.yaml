@@ -204,7 +204,7 @@ jobs:
             ./slackernews
 
       - name: Copy the helm chart to the replicated directory
-        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
+        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./replicated
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
