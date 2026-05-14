@@ -36,7 +36,6 @@ on:
 
 env:
   SLACKERNEWS_REGISTRY: ghcr.io
-  SECURE_BUILD_REGISTRY: cve0.io
 
 jobs:
   build:
@@ -65,12 +64,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to the SecureBuild Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.SECURE_BUILD_REGISTRY }}
-          username: replicated
-          password: ${{ secrets.SECURE_BUILD_TOKEN }}
 
       - name: Extract metadata (tags, labels) for web image
         id: web-meta
@@ -185,45 +178,20 @@ jobs:
           version: "3.9.0"
         id: install
 
-      - name: Update the values.yaml with the registry name
-        uses: jacobtomlinson/gha-find-replace@v2
+      - name: Update the values.yaml with proxy registry
+        uses: mikefarah/yq@master
         with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$REGISTRY'
-          replace: '${{ inputs.proxy }}'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$IMAGE'
-          replace: 'proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$VERSION'
-          replace: '${{ inputs.version }}'
-          regex: false
-
-      - name: Update the values.yaml with the secure built image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$SECUREBUILD_PATH'
-          replace: 'proxy/${{ inputs.slug }}/cve0.io'
-          regex: false
-
-      - name: Update the values.yaml with the image path
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          include: 'chart/slackernews/values.yaml'
-          find: '$SECUREBUILD_PATH'
-          replace: 'proxy/${{ inputs.slug }}/cve0.io'
-          regex: false
+          cmd: |
+            yq -i '
+              .replicated.image.registry = "${{ inputs.proxy }}" |
+              .images.slackernews.registry = "${{ inputs.proxy }}" |
+              .images.slackernews.repository = "proxy/${{ inputs.slug }}/${{ env.SLACKERNEWS_REGISTRY }}/${{ inputs.namespace }}/slackernews-web" |
+              .images.slackernews.tag = "${{ inputs.version }}" |
+              .images.nginx.registry = "${{ inputs.proxy }}" |
+              .images.nginx.repository = "proxy/${{ inputs.slug }}/" + .images.nginx.repository |
+              .images.postgres.registry = "${{ inputs.proxy }}" |
+              .images.postgres.repository = "proxy/${{ inputs.slug }}/" + .images.postgres.repository
+            ' chart/slackernews/values.yaml
 
       - id: package-helm-chart
         run: |
@@ -235,13 +203,13 @@ jobs:
             --version=${{ inputs.version }} \
             ./slackernews
 
-      - name: Copy the helm chart to the kots directory
-        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./kots
+      - name: Copy the helm chart to the replicated directory
+        run: cp ./chart/slackernews-${{ inputs.version }}.tgz ./replicated
 
       - name: Set web image in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$REGISTRY'
           replace: '${{ inputs.proxy }}'
           regex: false
@@ -249,7 +217,7 @@ jobs:
       - name: Update chart version in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$VERSION'
           replace: '${{ inputs.version }}'
           regex: false
@@ -257,7 +225,7 @@ jobs:
       - name: Update chart version in HelmChart kind
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          include: 'kots/slackernews-chart.yaml'
+          include: 'replicated/slackernews-chart.yaml'
           find: '$NAMESPACE'
           replace: '${{ inputs.namespace }}'
           regex: false
@@ -283,6 +251,6 @@ jobs:
           replicated-app: ${{ inputs.slug }}
           replicated-api-token: ${{ steps.prepare-api.outputs.api-token }}
           replicated-api-origin: ${{ steps.prepare-api.outputs.api-endpoint }}
-          yaml-dir: ./kots
+          yaml-dir: ./replicated
           promote-channel: "Unstable"
           version: ${{ inputs.version }}
