@@ -25,6 +25,11 @@ on:
         required: true
         default: proxy.replicated.com
         type: string
+      app-service:
+        description: Replicated App Service
+        required: true
+        default: replicated.app
+        type: string
       api-endpoint:
         description: Replicated API Endpoint
         required: false
@@ -229,6 +234,15 @@ jobs:
           find: '$NAMESPACE'
           replace: '${{ inputs.namespace }}'
           regex: false
+
+      - name: Update the embedded-cluster.yaml custom domains
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq -i '
+              .spec.domains.proxyRegistryDomain = "${{ inputs.proxy }}" |
+              .spec.domains.replicatedAppDomain = "${{ inputs.app-service }}"
+            ' replicated/embedded-cluster.yaml
 
       - name: Prepare API parameters for release action
         id: prepare-api
