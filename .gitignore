@@ -1,3 +1,5 @@
+.worktrees
+
 branding/email-templates.json
 branding/email-templates/node_modules
 branding/email-templates/dist
